@@ -57,6 +57,10 @@ class BaseField(object):
 
         instance._data[self.field_name] = value
 
+    def __delete__(self, instance):
+        if self.field_name in instance._data:
+            del instance._data[self.field_name]
+
     def raise_error(self, message='', errors=None, field_name=None):
         """Raises a ValidationError. """
         field_name = field_name if field_name else self.field_name
@@ -310,17 +314,7 @@ class BooleanField(BaseField):
 
 class DateTimeField(BaseField):
     """A datetime field.
-
-    Uses the python-dateutil library if available alternatively use time.strptime
-    to parse the dates.  Note: python-dateutil's parser is fully featured and when
-    installed you can utilise it to convert varying types of date formats into valid
-    python datetime objects.
-
-    Note: Microseconds are rounded to the nearest millisecond.
-      Pre UTC microsecond support is effectively broken.
-      Use :class:`~mongoengine.fields.ComplexDateTimeField` if you
-      need accurate microsecond support.
-    """
+    TODO: cleanup """
 
     def validate(self, value):
         new_value = self.to_json(value)

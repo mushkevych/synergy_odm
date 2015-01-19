@@ -36,7 +36,7 @@ class BaseDocument(object):
         """Dictionary-style field getter.
         :param name: field_name of the field (not the name of the variable)
         :return: field value if present
-        :raise KeyError if the field_name is not known
+        :raise KeyError if the given name is not among known field_names
         """
         if name not in self._fields:
             raise KeyError(name)
@@ -47,12 +47,22 @@ class BaseDocument(object):
         """Dictionary-style field setter.
         :param name: field_name of the field (not the name of the variable)
         :param value: value to set
-        :raise KeyError if the field_name is not known
+        :raise KeyError if the given name is not among known field_names
         """
         if name not in self._fields:
             raise KeyError(name)
         field_obj = self._fields[name]
         return field_obj.__set__(self, value)
+
+    def __delitem__(self, name):
+        """Dictionary-style field deleter.
+        :param name: field_name of the field (not the name of the variable)
+        :raise KeyError if the given name is not among known field_names
+        """
+        if name not in self._fields:
+            raise KeyError(name)
+        field_obj = self._fields[name]
+        return field_obj.__delete__(self)
 
     def __contains__(self, name):
         """
@@ -131,10 +141,8 @@ class BaseDocument(object):
             else:
                 field_obj.validate(value)
 
-    def to_json(self, *args, **kwargs):
-        """Converts a document to JSON.
-        :param use_db_field: Set to True by default but enables the output of the json structure with the field names and not the mongodb store db_names in case of set to False
-        """
+    def to_json(self):
+        """Converts given document to JSON dict. """
         json_data = dict()
 
         for field_name, field_obj in self._fields.iteritems():
@@ -144,7 +152,7 @@ class BaseDocument(object):
             elif isinstance(field_obj, BaseField):
                 value = field_obj.__get__(self, self.__class__)
             else:
-                # we do not care about fields not derived from BaseField
+                # ignore fields not derived from BaseField or NestedDocument
                 continue
 
             if value is None:

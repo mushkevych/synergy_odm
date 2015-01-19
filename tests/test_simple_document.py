@@ -102,6 +102,33 @@ class TestDocument(unittest.TestCase):
         self.assertFalse('field_decimal' in self.model)
         self.assertFalse('field_integer' in self.model)
 
+    def test_delete(self):
+        now = datetime.now()
+
+        self.model['b'] = True
+        self.model['s'] = 'a short string description'
+        self.model['dt'] = now
+        self.model['d'] = 123.123
+        self.model['i'] = 123
+
+        self.assertTrue('b' in self.model)
+        self.assertTrue('s' in self.model)
+        self.assertTrue('dt' in self.model)
+        self.assertTrue('d' in self.model)
+        self.assertTrue('i' in self.model)
+
+        del self.model['i']
+        del self.model['b']
+        del self.model['s']
+        del self.model['dt']
+        del self.model['d']
+
+        self.assertFalse('b' in self.model)
+        self.assertFalse('s' in self.model)
+        self.assertFalse('dt' in self.model)
+        self.assertFalse('d' in self.model)
+        self.assertFalse('i' in self.model)
+
 
 if __name__ == '__main__':
     unittest.main()
