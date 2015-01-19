@@ -31,14 +31,16 @@ Usage example:
         m2 = HostContainer.from_json(json_document)
 
 Inspired by:
-[Magic Methods](http://www.rafekettler.com/magicmethods.html)
-[Django ORM](https://docs.djangoproject.com/en/dev/topics/db/models/)
-[Mongoengine](http://mongoengine.org/)
+
+- [Magic Methods](http://www.rafekettler.com/magicmethods.html)  
+- [Django ORM](https://docs.djangoproject.com/en/dev/topics/db/models/)  
+- [Mongoengine](http://mongoengine.org/)  
 
 
 License:
 ---------
-Modified BSD License. Refer to LICENSE for details.
+[Modified BSD License.](http://en.wikipedia.org/wiki/BSD_licenses#3-clause_license_.28.22Revised_BSD_License.22.2C_.22New_BSD_License.22.2C_or_.22Modified_BSD_License.22.29)
+Refer to LICENSE for details.
 
 
 Git repository:
@@ -53,9 +55,11 @@ Metafile:
     /odm/                 folder contains Object-Document Mapping modules
 
 
-Wiki Links
+Test Runner
 ---------
-[Wiki Home Page](https://github.com/mushkevych/synergy_odm/wiki)
+To run all tests from the *tests* directory, run following from the command line: 
+
+    $> python -m unittest discover tests
 
 
 Os-Level Dependencies
