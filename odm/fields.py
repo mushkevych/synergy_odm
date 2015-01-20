@@ -116,7 +116,7 @@ class NestedDocumentField(BaseField):
         """Make sure that value is of the right type """
         if not isinstance(value, self.nested_klass):
             self.raise_error('NestedClass is of the wrong type: %s vs expected %s'
-                       % (value.__class__.__name__, self.nested_klass.__name__))
+                             % (value.__class__.__name__, self.nested_klass.__name__))
         super(NestedDocumentField, self).validate(value)
 
 
@@ -161,8 +161,7 @@ class DictField(BaseField):
     def validate(self, value):
         """Make sure that the inspected value is of type `dict` """
         if not isinstance(value, dict):
-            self.raise_error('Only dictionaries may be used in a DictField')
-
+            self.raise_error('Only Python dict may be used in a DictField')
         super(DictField, self).validate(value)
 
 
@@ -361,6 +360,13 @@ class DateTimeField(BaseField):
 
 class ObjectIdField(BaseField):
     """A field wrapper around ObjectIds. """
+
+    def __get__(self, instance, owner):
+        value = super(ObjectIdField, self).__get__(instance, owner)
+        if isinstance(value, basestring):
+            value = unicode(value)
+        return value
+
     def to_python(self, value):
         if not isinstance(value, basestring):
             value = unicode(value)
@@ -371,7 +377,6 @@ class ObjectIdField(BaseField):
             try:
                 return unicode(value)
             except Exception, e:
-                # e.message attribute has been deprecated since Python 2.6
                 self.raise_error(message=unicode(e))
         return value
 

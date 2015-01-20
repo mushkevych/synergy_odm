@@ -12,7 +12,7 @@ class BaseDocument(object):
 
         self._data = dict()
         for var in values.keys():
-            if var not in self._fields.keys() + ['id', 'pk']:
+            if var not in self._fields.keys():
                 msg = "The field '{0}' does not exist on the document '{1}'".format(var, self.__class__.__name__)
                 raise FieldDoesNotExist(msg)
 
@@ -33,7 +33,7 @@ class BaseDocument(object):
         return iter(self._fields)
 
     def __getitem__(self, name):
-        """Dictionary-style field getter.
+        """ Dictionary-style field getter.
         :param name: field_name of the field (not the name of the variable)
         :return: field value if present
         :raise KeyError if the given name is not among known field_names
@@ -44,7 +44,7 @@ class BaseDocument(object):
         return field_obj.__get__(self, self.__class__)
 
     def __setitem__(self, name, value):
-        """Dictionary-style field setter.
+        """ Dictionary-style field setter.
         :param name: field_name of the field (not the name of the variable)
         :param value: value to set
         :raise KeyError if the given name is not among known field_names
@@ -55,7 +55,7 @@ class BaseDocument(object):
         return field_obj.__set__(self, value)
 
     def __delitem__(self, name):
-        """Dictionary-style field deleter.
+        """ Dictionary-style field deleter.
         :param name: field_name of the field (not the name of the variable)
         :raise KeyError if the given name is not among known field_names
         """
@@ -121,6 +121,10 @@ class BaseDocument(object):
     def key(self, value):
         raise NotImplementedError('property key.getter is not implemented in BaseDocument child %s'
                                   % self.__class__.__name__)
+
+    @property
+    def document(self):
+        return self.to_json()
 
     def validate(self):
         """Ensure that all fields' values are valid and that required fields are present. """
