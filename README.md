@@ -28,6 +28,7 @@ Usage example:
         model.nested_document.field_integer = 123
         
         json_document = model.to_json()
+        assert isinstance(json_data, dict)
         m2 = HostContainer.from_json(json_document)
 
 Inspired by:
