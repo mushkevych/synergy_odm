@@ -84,6 +84,12 @@ class TestDocument(unittest.TestCase):
     def test_contains(self):
         now = datetime.now()
 
+        self.assertFalse('b' in self.model)
+        self.assertFalse('s' in self.model)
+        self.assertFalse('dt' in self.model)
+        self.assertFalse('d' in self.model)
+        self.assertFalse('i' in self.model)
+
         self.model['b'] = True
         self.model['s'] = 'a short string description'
         self.model['dt'] = now
