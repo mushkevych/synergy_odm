@@ -1,7 +1,7 @@
 Synergy Object-Document Mapping
 =========
 
-Object Document Mapping for convenient python-to-json or json-to-python applications
+Object Document Mapping for convenient python-to-json and json-to-python conversions
 
 Usage example:
 

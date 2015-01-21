@@ -1,15 +1,15 @@
 from distutils.core import setup
 
 setup(name = 'synergy_odm',
-      version = '0.2',
+      version = '0.3',
       description = 'Synergy Object-Document Mapper',
       author = 'Bohdan Mushkevych',
       author_email = 'mushkevych@gmail.com',
       url = 'https://github.com/mushkevych/synergy_odm',
       packages = ['odm'],
-      long_description = '''TBD''',
+      long_description = '''Object Document Mapping for convenient python-to-json and json-to-python conversions''',
       license = 'Modified BSD License',
-      classifiers=[
+      classifiers = [
           'Development Status :: 4 - Beta',
           'Environment :: Console',
           'Intended Audience :: Developers',
@@ -17,6 +17,6 @@ setup(name = 'synergy_odm',
           'Operating System :: any',
           'Programming Language :: Python',
           'Topic :: Utilities',
-          ],
+      ],
       requires=[]
 )

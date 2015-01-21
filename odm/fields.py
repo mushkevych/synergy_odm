@@ -66,13 +66,13 @@ class BaseField(object):
         field_name = field_name if field_name else self.field_name
         raise ValidationError(message, errors=errors, field_name=field_name)
 
-    def to_python(self, value):
+    def from_json(self, value):
         """Convert a JSON-variable to a Python type. """
         return value
 
     def to_json(self, value):
         """Convert a Python type to a JSON-friendly type. """
-        return self.to_python(value)
+        return self.from_json(value)
 
     def validate(self, value):
         """Performs validation of the value.
@@ -174,14 +174,17 @@ class StringField(BaseField):
         self.min_length = min_length
         super(StringField, self).__init__(field_name, **kwargs)
 
-    def to_python(self, value):
+    def from_json(self, value):
         if isinstance(value, unicode):
             return value
-        try:
-            value = value.decode('utf-8')
-        except:
-            pass
-        return value
+        elif not isinstance(value, basestring):
+            return unicode(value)
+        else:
+            try:
+                value = value.decode('utf-8')
+            except:
+                pass
+            return value
 
     def validate(self, value):
         if not isinstance(value, basestring):
@@ -206,7 +209,7 @@ class IntegerField(BaseField):
         self.min_value, self.max_value = min_value, max_value
         super(IntegerField, self).__init__(field_name, **kwargs)
 
-    def to_python(self, value):
+    def from_json(self, value):
         try:
             value = int(value)
         except ValueError:
@@ -247,7 +250,8 @@ class DecimalField(BaseField):
             - decimal.ROUND_HALF_EVEN (to nearest with ties going to nearest even integer)
             - decimal.ROUND_HALF_UP (to nearest with ties going away from zero)
             - decimal.ROUND_UP (away from zero)
-            - decimal.ROUND_05UP (away from zero if last digit after rounding towards zero would have been 0 or 5; otherwise towards zero)
+            - decimal.ROUND_05UP (away from zero if last digit after rounding towards zero would have been 0 or 5;
+                                  otherwise towards zero)
 
             Defaults to: ``decimal.ROUND_HALF_UP``
 
@@ -260,23 +264,22 @@ class DecimalField(BaseField):
 
         super(DecimalField, self).__init__(field_name, **kwargs)
 
-    def to_python(self, value):
+    def from_json(self, value):
         if value is None:
             return value
 
-        # Convert to string for python 2.6 before casting to Decimal
         try:
-            value = decimal.Decimal("%s" % value)
+            value = decimal.Decimal(str(value))
         except decimal.InvalidOperation:
             return value
-        return value.quantize(decimal.Decimal(".%s" % ("0" * self.precision)), rounding=self.rounding)
+        return value.quantize(decimal.Decimal('.%s' % ('0' * self.precision)), rounding=self.rounding)
 
-    def to_json(self, value, use_db_field=True):
+    def to_json(self, value):
         if value is None:
             return value
         if self.force_string:
             return unicode(value)
-        return float(self.to_python(value))
+        return float(self.from_json(value))
 
     def validate(self, value):
         if not isinstance(value, decimal.Decimal):
@@ -299,7 +302,7 @@ class DecimalField(BaseField):
 class BooleanField(BaseField):
     """A boolean field type. """
 
-    def to_python(self, value):
+    def from_json(self, value):
         try:
             value = bool(value)
         except ValueError:
@@ -367,7 +370,7 @@ class ObjectIdField(BaseField):
             value = unicode(value)
         return value
 
-    def to_python(self, value):
+    def from_json(self, value):
         if not isinstance(value, basestring):
             value = unicode(value)
         return value
@@ -377,7 +380,7 @@ class ObjectIdField(BaseField):
             try:
                 return unicode(value)
             except Exception, e:
-                self.raise_error(message=unicode(e))
+                self.raise_error(message=str(e))
         return value
 
     def validate(self, value):

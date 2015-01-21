@@ -81,7 +81,7 @@ class TestDocument(unittest.TestCase):
 
         self.assertEqual(self.model.field_boolean, m2.field_boolean)
         self.assertEqual(self.model.field_datetime, m2.field_datetime)
-        self.assertEqual(self.model.field_decimal, m2.field_decimal)
+        self.assertAlmostEqual(self.model.field_decimal, float(m2.field_decimal), delta=0.01)
         self.assertEqual(self.model.field_integer, m2.field_integer)
         self.assertEqual(self.model.field_string, m2.field_string)
 
