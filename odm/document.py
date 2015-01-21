@@ -11,10 +11,11 @@ class BaseDocument(object):
         self._fields = self._get_fields()
 
         self._data = dict()
-        for var in values.keys():
-            if var not in self._fields.keys():
-                msg = "The field '{0}' does not exist on the document '{1}'".format(var, self.__class__.__name__)
+        for field_name in values.keys():
+            if field_name not in self._fields.keys():
+                msg = "The field '{0}' does not exist on the document '{1}'".format(field_name, self.__class__.__name__)
                 raise FieldDoesNotExist(msg)
+            self.__setitem__(field_name, values[field_name])
 
     def __delattr__(self, name):
         """Handle deletions of fields"""

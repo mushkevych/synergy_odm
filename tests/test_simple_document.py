@@ -21,6 +21,36 @@ class TestDocument(unittest.TestCase):
     def tearDown(self):
         del self.model
 
+    def test_init(self):
+        now = datetime.now()
+
+        self.model = SimpleContainer(b=True,
+                                     s='a short string description',
+                                     dt=now,
+                                     d=123.123,
+                                     i=123)
+
+        self.assertTrue(self.model.field_boolean)
+        self.assertEqual(self.model.field_datetime, now)
+        self.assertEqual(self.model.field_decimal, 123.123)
+        self.assertEqual(self.model.field_integer, 123)
+        self.assertEqual(self.model.field_string, 'a short string description')
+
+    def test_init_dict(self):
+        now = datetime.now()
+
+        self.model = SimpleContainer(b=True,
+                                     s='a short string description',
+                                     dt=now,
+                                     d=123.123,
+                                     i=123)
+
+        self.assertTrue(self.model.field_boolean)
+        self.assertEqual(self.model.field_datetime, now)
+        self.assertEqual(self.model.field_decimal, 123.123)
+        self.assertEqual(self.model.field_integer, 123)
+        self.assertEqual(self.model.field_string, 'a short string description')
+
     def test_getter_setter(self):
         now = datetime.now()
 
