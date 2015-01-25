@@ -8,7 +8,7 @@ from odm import document, fields
 class EmbeddedCollections(document.BaseDocument):
     field_list = fields.ListField('s')
     field_dict = fields.DictField('i')
-    field_id = fields.ObjectIdField(field_name='_id', required=False)
+    field_id = fields.ObjectIdField(field_name='_id', null=True)
 
 
 class TestDocument(unittest.TestCase):

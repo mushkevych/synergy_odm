@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from odm.errors import FieldDoesNotExist
+from odm.errors import FieldDoesNotExist, ValidationError
 from odm.fields import NestedDocumentField, BaseField
 from odm.pyversion import PY3, txt_type
 
@@ -128,21 +128,18 @@ class BaseDocument(object):
         return self.to_json()
 
     def validate(self):
-        """Ensure that all fields' values are valid and that required fields are present. """
+        """Ensure that all fields' values are valid and that non-nullable fields are present. """
         for field_name, field_obj in self._fields.iteritems():
-            value = field_obj.get(field_name, None)
+            value = field_obj.__get__(self, self.__class__)
 
             if value is None and field_obj.null is False:
-                # raise ValidationError
-                pass
-
-            if value is None and field_obj.required is True:
-                # raise ValidationError
-                pass
+                raise ValidationError('Non-nullable field {0} is set to None'.format(field_name))
+            elif value is None and field_obj.null is True:
+                # no further validations are possible on NoneType field
+                continue
 
             if isinstance(field_obj, NestedDocumentField):
-                nested_document = field_obj.__get__(self, self.__class__)
-                nested_document.validate()
+                value.validate()
             else:
                 field_obj.validate(value)
 

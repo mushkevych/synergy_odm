@@ -12,12 +12,10 @@ class BaseField(object):
     """A base class for fields in a Synergy ODM document. Instances of this class
     may be added to subclasses of `Document` to define a document's schema. """
 
-    def __init__(self, field_name, required=False, default=None,
+    def __init__(self, field_name, default=None,
                  choices=None, verbose_name=None, null=False):
         """
         :param field_name: name of the field in the JSON document
-        :param required: If the field is required.
-            Whether it has to have a value or not. Defaults to False.
         :param default: (optional) The default value for this field if no value
             has been set (or if the value has been unset).  It can be a
             callable.
@@ -27,7 +25,6 @@ class BaseField(object):
             then the default value is set
         """
         self.field_name = field_name
-        self.required = required
         self.default = default
         self.choices = choices
         self.verbose_name = verbose_name
