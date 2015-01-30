@@ -15,7 +15,6 @@ class FieldContainer(document.BaseDocument):
     field_int_3 = fields.IntegerField('i3', null=False)
     field_string_null = fields.StringField('s')
     field_string = fields.StringField('s')
-    field_string = fields.StringField('s')
 
 
 class TestDocument(unittest.TestCase):

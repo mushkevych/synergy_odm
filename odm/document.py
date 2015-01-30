@@ -185,6 +185,11 @@ class BaseDocument(object):
             if isinstance(field_obj, NestedDocumentField):
                 if field_name in json_data:
                     nested_field = field_obj.__get__(new_instance, new_instance.__class__)
+                    if not nested_field:
+                        # here, we have to create an instance of the nested document,
+                        # since we have a JSON object for it
+                        nested_field = field_obj.nested_klass()
+
                     nested_document = nested_field.from_json(json_data[field_name])
                     field_obj.__set__(new_instance, nested_document)
             elif isinstance(field_obj, BaseField):
