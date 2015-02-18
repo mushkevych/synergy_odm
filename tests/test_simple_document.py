@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from odm import document, fields
 
@@ -80,7 +80,7 @@ class TestDocument(unittest.TestCase):
         m2 = SimpleContainer.from_json(json_data)
 
         self.assertEqual(self.model.field_boolean, m2.field_boolean)
-        self.assertEqual(self.model.field_datetime, m2.field_datetime)
+        self.assertTrue(self.model.field_datetime - m2.field_datetime < timedelta(seconds=1))
         self.assertAlmostEqual(self.model.field_decimal, float(m2.field_decimal), delta=0.01)
         self.assertEqual(self.model.field_integer, m2.field_integer)
         self.assertEqual(self.model.field_string, m2.field_string)

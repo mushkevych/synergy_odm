@@ -3,6 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 import re
 import decimal
 import datetime
+from types import NoneType
 
 from odm.errors import ValidationError
 DEFAULT_DT_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -356,7 +357,7 @@ class DateTimeField(BaseField):
         return datetime.datetime.strptime(value, self.dt_format)
 
     def __set__(self, instance, value):
-        if isinstance(value, (datetime.datetime, datetime.date)):
+        if isinstance(value, (datetime.datetime, datetime.date, NoneType)):
             pass
         elif isinstance(value, (int, long, float)):
             value = datetime.datetime.fromtimestamp(value)
