@@ -24,11 +24,11 @@ class TestDocument(unittest.TestCase):
     def test_init(self):
         now = datetime.now()
 
-        self.model = SimpleContainer(b=True,
-                                     s='a short string description',
-                                     dt=now,
-                                     d=123.123,
-                                     i=123)
+        self.model = SimpleContainer(field_boolean=True,
+                                     field_string='a short string description',
+                                     field_datetime=now,
+                                     field_decimal=123.123,
+                                     field_integer=123)
 
         self.assertTrue(self.model.field_boolean)
         self.assertEqual(self.model.field_datetime, now)
@@ -39,11 +39,11 @@ class TestDocument(unittest.TestCase):
     def test_init_dict(self):
         now = datetime.now()
 
-        self.model = SimpleContainer(b=True,
-                                     s='a short string description',
-                                     dt=now,
-                                     d=123.123,
-                                     i=123)
+        self.model = SimpleContainer(field_boolean=True,
+                                     field_string='a short string description',
+                                     field_datetime=now,
+                                     field_decimal=123.123,
+                                     field_integer=123)
 
         self.assertTrue(self.model.field_boolean)
         self.assertEqual(self.model.field_datetime, now)
@@ -138,7 +138,7 @@ class TestDocument(unittest.TestCase):
         self.assertFalse('field_decimal' in self.model)
         self.assertFalse('field_integer' in self.model)
 
-    def test_delete(self):
+    def test_delete_dict_style(self):
         now = datetime.now()
 
         self.model['b'] = True
@@ -164,6 +164,42 @@ class TestDocument(unittest.TestCase):
         self.assertFalse('dt' in self.model)
         self.assertFalse('d' in self.model)
         self.assertFalse('i' in self.model)
+
+    def test_delete_attr_style(self):
+        now = datetime.now()
+
+        self.model['b'] = True
+        self.model['s'] = 'a short string description'
+        self.model['dt'] = now
+        self.model['d'] = 123.123
+        self.model['i'] = 123
+
+        self.assertTrue('b' in self.model)
+        self.assertTrue('s' in self.model)
+        self.assertTrue('dt' in self.model)
+        self.assertTrue('d' in self.model)
+        self.assertTrue('i' in self.model)
+
+        del self.model.field_integer
+        del self.model.field_boolean
+        del self.model.field_string
+        del self.model.field_datetime
+        del self.model.field_decimal
+
+        self.assertFalse('b' in self.model)
+        self.assertFalse('s' in self.model)
+        self.assertFalse('dt' in self.model)
+        self.assertFalse('d' in self.model)
+        self.assertFalse('i' in self.model)
+
+    def test_field_order(self):
+        class Container(document.BaseDocument):
+            a = fields.StringField('aaa', null=False)
+            z = fields.StringField('zzz', null=False)
+            k = fields.StringField('kkk', null=False)
+            b = fields.StringField('bbb', null=False)
+
+        self.assertListEqual(Container._get_ordered_field_names(), ['aaa', 'zzz', 'kkk', 'bbb'])
 
 
 if __name__ == '__main__':

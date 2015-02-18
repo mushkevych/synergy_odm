@@ -7,20 +7,26 @@ from odm.pyversion import PY3, txt_type
 
 class BaseDocument(object):
     def __init__(self, **values):
-        """ Initialize a document or embedded document """
+        """
+        :param values: list of <Document's attribute name>-<attribute value> pairs
+        """
         self._fields = self._get_fields()
+        self._attributes = self._get_attributes()
 
         self._data = dict()
         for field_name in values.keys():
-            if field_name not in self._fields.keys():
-                msg = "The field '{0}' does not exist on the document '{1}'".format(field_name, self.__class__.__name__)
+            if field_name not in self._attributes:
+                msg = "The attribute '{0}' does not exist on the document '{1}'".\
+                    format(field_name, self.__class__.__name__)
                 raise FieldDoesNotExist(msg)
-            self.__setitem__(field_name, values[field_name])
+
+            field = self._attributes[field_name]
+            field.__set__(self, values[field_name])
 
     def __delattr__(self, name):
         """Handle deletions of fields"""
-        if name in self._fields:
-            default = self._fields[name].default
+        if name in self._attributes:
+            default = self._attributes[name].default
             if callable(default):
                 default = default()
             setattr(self, name, default)
@@ -35,7 +41,7 @@ class BaseDocument(object):
 
     def __getitem__(self, name):
         """ Dictionary-style field getter.
-        :param name: field_name of the field (not the name of the variable)
+        :param name: field_name of the field (not the name of the Document's attribute)
         :return: field value if present
         :raise KeyError if the given name is not among known field_names
         """
@@ -46,7 +52,7 @@ class BaseDocument(object):
 
     def __setitem__(self, name, value):
         """ Dictionary-style field setter.
-        :param name: field_name of the field (not the name of the variable)
+        :param name: field_name of the field (not the name of the Document's attribute)
         :param value: value to set
         :raise KeyError if the given name is not among known field_names
         """
@@ -57,7 +63,7 @@ class BaseDocument(object):
 
     def __delitem__(self, name):
         """ Dictionary-style field deleter.
-        :param name: field_name of the field (not the name of the variable)
+        :param name: field_name of the field (not the name of the Document's attribute)
         :raise KeyError if the given name is not among known field_names
         """
         if name not in self._fields:
@@ -67,7 +73,7 @@ class BaseDocument(object):
 
     def __contains__(self, name):
         """
-        :param name: field_name of the field (not the name of the variable)
+        :param name: field_name of the field (not the name of the Document's attribute)
         :return: True if the field is set, False if the field is None or not known
         """
         try:
@@ -174,8 +180,23 @@ class BaseDocument(object):
                 _fields[field_obj.field_name] = field_obj
             else:
                 continue
-
         return _fields
+
+    @classmethod
+    def _get_attributes(cls):
+        _attributes = dict()
+        for attribute_name in dir(cls):
+            attribute_obj = getattr(cls, attribute_name)
+            if isinstance(attribute_obj, BaseField):
+                _attributes[attribute_name] = attribute_obj
+            else:
+                continue
+        return _attributes
+
+    @classmethod
+    def _get_ordered_field_names(cls):
+        _fields = cls._get_fields()
+        return [f[1].field_name for f in sorted(_fields.items(), key=lambda entry: entry[1].creation_counter)]
 
     @classmethod
     def from_json(cls, json_data):

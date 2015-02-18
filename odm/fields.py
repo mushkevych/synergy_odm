@@ -12,6 +12,10 @@ class BaseField(object):
     """A base class for fields in a Synergy ODM document. Instances of this class
     may be added to subclasses of `Document` to define a document's schema. """
 
+    # Creation counter keeps track of Fields declaration order in the Document
+    # Each time a Field instance is created the counter should be increased
+    creation_counter = 0
+
     def __init__(self, field_name, default=None,
                  choices=None, verbose_name=None, null=False):
         """
@@ -29,6 +33,8 @@ class BaseField(object):
         self.choices = choices
         self.verbose_name = verbose_name
         self.null = null
+        self.creation_counter = BaseField.creation_counter + 1
+        BaseField.creation_counter += 1
 
     def __get__(self, instance, owner):
         """ Descriptor for retrieving a value from a field in a document. """

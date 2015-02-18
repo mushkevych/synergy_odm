@@ -36,6 +36,7 @@ Inspired by:
 - [Magic Methods](http://www.rafekettler.com/magicmethods.html)  
 - [Django ORM](https://docs.djangoproject.com/en/dev/topics/db/models/)  
 - [Mongoengine](http://mongoengine.org/)  
+- [StackOverflow](http://stackoverflow.com/questions/4459531/how-to-read-class-attributes-in-the-same-order-as-declared)
 
 
 License:
