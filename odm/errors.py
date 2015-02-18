@@ -1,18 +1,6 @@
 from odm.pyversion import txt_type
 
 
-class NotRegistered(Exception):
-    pass
-
-
-class InvalidDocumentError(Exception):
-    pass
-
-
-class DoesNotExist(Exception):
-    pass
-
-
 class FieldDoesNotExist(Exception):
     pass
 

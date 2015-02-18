@@ -1,11 +1,11 @@
 __author__ = 'Bohdan Mushkevych'
 
 import re
-import time
 import decimal
 import datetime
 
 from odm.errors import ValidationError
+DEFAULT_DT_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 
 class BaseField(object):
@@ -318,50 +318,54 @@ class BooleanField(BaseField):
 
 
 class DateTimeField(BaseField):
-    """A datetime field.
-    TODO: cleanup """
+    """ A datetime field. Features:
+    - During runtime, value is stored in datetime format
+    - If string value is assigned to the field, then it is converted to the datetime format,
+      base on given datetime format
+    - If integer is assigned to the field, then it is considered time since epoch and converted to the datetime format,
+      base on given datetime format
+    - During json serialization, value is converted to string in given date format. """
+
+    def __init__(self, field_name, dt_format=DEFAULT_DT_FORMAT, **kwargs):
+        self.dt_format = dt_format
+        super(DateTimeField, self).__init__(field_name, **kwargs)
 
     def validate(self, value):
         new_value = self.to_json(value)
-        if not isinstance(new_value, (datetime.datetime, datetime.date)):
+        if not isinstance(new_value, (basestring, str, unicode)):
             self.raise_error(u'cannot parse date "%s"' % value)
 
     def to_json(self, value):
         if value is None:
             return value
-        if isinstance(value, datetime.datetime):
-            return value
-        if isinstance(value, datetime.date):
-            return datetime.datetime(value.year, value.month, value.day)
         if callable(value):
-            return value()
+            value = value()
+
+        if isinstance(value, (datetime.datetime, datetime.date)):
+            return value.strftime(self.dt_format)
+        else:
+            raise ValueError('unknown datetime type: {0}'.format(type(value).__name__))
+
+    def from_json(self, value):
+        if value is None:
+            return value
 
         if not isinstance(value, (basestring, str, unicode)):
-            return None
+            raise ValueError('from_json expects data of string type vs {0}'.format(type(value).__name__))
 
-        # split usecs, because they are not recognized by strptime.
-        if '.' in value:
-            try:
-                value, usecs = value.split('.')
-                usecs = int(usecs)
-            except ValueError:
-                return None
+        return datetime.datetime.strptime(value, self.dt_format)
+
+    def __set__(self, instance, value):
+        if isinstance(value, (datetime.datetime, datetime.date)):
+            pass
+        elif isinstance(value, (int, long, float)):
+            value = datetime.datetime.fromtimestamp(value)
+        elif isinstance(value, (basestring, str, unicode)):
+            value = datetime.datetime.strptime(value, self.dt_format)
         else:
-            usecs = 0
-        kwargs = {'microsecond': usecs}
-        try:  # Seconds are optional, so try converting seconds first.
-            return datetime.datetime(*time.strptime(value,
-                                                    '%Y-%m-%d %H:%M:%S')[:6], **kwargs)
-        except ValueError:
-            try:  # Try without seconds.
-                return datetime.datetime(*time.strptime(value,
-                                                        '%Y-%m-%d %H:%M')[:5], **kwargs)
-            except ValueError:  # Try without hour/minutes/seconds.
-                try:
-                    return datetime.datetime(*time.strptime(value,
-                                                            '%Y-%m-%d')[:3], **kwargs)
-                except ValueError:
-                    return None
+            raise ValueError('unknown datetime type: {0}'.format(type(value).__name__))
+
+        super(DateTimeField, self).__set__(instance, value)
 
 
 class ObjectIdField(BaseField):
