@@ -321,11 +321,11 @@ class BooleanField(BaseField):
 class DateTimeField(BaseField):
     """ A datetime field. Features:
     - During runtime, value is stored in datetime format
-    - If string value is assigned to the field, then it is converted to the datetime format,
-      base on given datetime format
-    - If integer is assigned to the field, then it is considered time since epoch and converted to the datetime format,
-      base on given datetime format
-    - During json serialization, value is converted to string in given date format. """
+    - If a string value is assigned to the field, then it is assumed to be in dt_format
+      and converted to the datetime object
+    - If an integer is assigned to the field, then it is considered to represent number of seconds since epoch
+      and converted to the datetime object
+    - During json serialization, value is converted to the string accordingly to dt_format. """
 
     def __init__(self, field_name, dt_format=DEFAULT_DT_FORMAT, **kwargs):
         self.dt_format = dt_format
