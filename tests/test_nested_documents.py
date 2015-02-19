@@ -4,7 +4,7 @@ import unittest
 from datetime import datetime, timedelta
 
 from odm import document, fields
-from tests.test_simple_document import SimpleContainer
+from tests.test_simple_fields import SimpleContainer
 
 
 class NestedDocuments(document.BaseDocument):

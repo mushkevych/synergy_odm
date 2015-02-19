@@ -44,7 +44,17 @@ class BaseField(object):
             return self
 
         # retrieve value from a BaseDocument instance if available
-        return instance._data.get(self.field_name)
+        value = instance._data.get(self.field_name)
+        if value is not None or self.null:
+            return value
+
+        # value is None at this point
+        if self.default is not None:
+            value = self.default
+            if callable(value):
+                value = value()
+            instance._data[self.field_name] = value
+        return value
 
     def __set__(self, instance, value):
         """ Descriptor for assigning a value to a field in a document. """
@@ -108,14 +118,6 @@ class NestedDocumentField(BaseField):
         kwargs.setdefault('default', lambda: nested_klass())
         super(NestedDocumentField, self).__init__(field_name, **kwargs)
 
-    def __get__(self, instance, owner):
-        value = super(NestedDocumentField, self).__get__(instance, owner)
-        if value is not None:
-            return value
-        else:
-            super(NestedDocumentField, self).__set__(instance, None)
-            return super(NestedDocumentField, self).__get__(instance, owner)
-
     def validate(self, value):
         """Make sure that value is of the right type """
         if not isinstance(value, self.nested_klass):
@@ -131,14 +133,6 @@ class ListField(BaseField):
         kwargs.setdefault('default', lambda: [])
         super(ListField, self).__init__(field_name, **kwargs)
 
-    def __get__(self, instance, owner):
-        value = super(ListField, self).__get__(instance, owner)
-        if value is not None:
-            return value
-        else:
-            super(ListField, self).__set__(instance, None)
-            return super(ListField, self).__get__(instance, owner)
-
     def validate(self, value):
         """Make sure that the inspected value is of type `list` or `tuple` """
         if not isinstance(value, (list, tuple)) or isinstance(value, basestring):
@@ -153,14 +147,6 @@ class DictField(BaseField):
     def __init__(self, field_name, **kwargs):
         kwargs.setdefault('default', lambda: {})
         super(DictField, self).__init__(field_name, **kwargs)
-
-    def __get__(self, instance, owner):
-        value = super(DictField, self).__get__(instance, owner)
-        if value is not None:
-            return value
-        else:
-            super(DictField, self).__set__(instance, None)
-            return super(DictField, self).__get__(instance, owner)
 
     def validate(self, value):
         """Make sure that the inspected value is of type `dict` """

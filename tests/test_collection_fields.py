@@ -13,6 +13,7 @@ class EmbeddedCollections(document.BaseDocument):
 
 class TestDocument(unittest.TestCase):
     def setUp(self):
+        self.maxDiff = None
         self.model = EmbeddedCollections()
 
     def tearDown(self):
