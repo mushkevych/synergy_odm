@@ -78,8 +78,6 @@ class TestDocument(unittest.TestCase):
         class FieldContainer(document.BaseDocument):
             field_datetime = fields.DateTimeField('dt', null=False)
 
-        model = FieldContainer()
-
         dt_valid = datetime.datetime(year=2015, month=01, day=01, hour=23, minute=59, second=59)
         dt_date_valid = datetime.date(year=2015, month=01, day=01)
         valid_formats = {
@@ -89,6 +87,7 @@ class TestDocument(unittest.TestCase):
             int(dt_valid.strftime('%s')): dt_valid
         }
 
+        model = FieldContainer()
         for key, value in valid_formats.iteritems():
             try:
                 model.field_datetime = key

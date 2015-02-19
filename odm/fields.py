@@ -179,6 +179,10 @@ class StringField(BaseField):
         super(StringField, self).__init__(field_name, **kwargs)
 
     def from_json(self, value):
+        if value is None:
+            # NoneType values are not jsonified by BaseDocument
+            return value
+
         if isinstance(value, unicode):
             return value
         elif not isinstance(value, basestring):
@@ -214,6 +218,10 @@ class IntegerField(BaseField):
         super(IntegerField, self).__init__(field_name, **kwargs)
 
     def from_json(self, value):
+        if value is None:
+            # NoneType values are not jsonified by BaseDocument
+            return value
+
         try:
             value = int(value)
         except ValueError:
@@ -270,6 +278,7 @@ class DecimalField(BaseField):
 
     def from_json(self, value):
         if value is None:
+            # NoneType values are not jsonified by BaseDocument
             return value
 
         try:
@@ -280,7 +289,9 @@ class DecimalField(BaseField):
 
     def to_json(self, value):
         if value is None:
+            # NoneType values are not jsonified by BaseDocument
             return value
+
         if self.force_string:
             return unicode(value)
         return float(self.from_json(value))
@@ -307,6 +318,10 @@ class BooleanField(BaseField):
     """A boolean field type. """
 
     def from_json(self, value):
+        if value is None:
+            # NoneType values are not jsonified by BaseDocument
+            return value
+
         try:
             value = bool(value)
         except ValueError:
@@ -338,7 +353,9 @@ class DateTimeField(BaseField):
 
     def to_json(self, value):
         if value is None:
+            # NoneType values are not jsonified by BaseDocument
             return value
+
         if callable(value):
             value = value()
 
@@ -349,9 +366,10 @@ class DateTimeField(BaseField):
 
     def from_json(self, value):
         if value is None:
+            # NoneType values are not jsonified by BaseDocument
             return value
 
-        if not isinstance(value, (basestring, str, unicode)):
+        if not isinstance(value, basestring):
             raise ValueError('from_json expects data of string type vs {0}'.format(type(value).__name__))
 
         return datetime.datetime.strptime(value, self.dt_format)
@@ -361,7 +379,7 @@ class DateTimeField(BaseField):
             pass
         elif isinstance(value, (int, long, float)):
             value = datetime.datetime.fromtimestamp(value)
-        elif isinstance(value, (basestring, str, unicode)):
+        elif isinstance(value, basestring):
             value = datetime.datetime.strptime(value, self.dt_format)
         else:
             raise ValueError('unknown datetime type: {0}'.format(type(value).__name__))
@@ -374,21 +392,17 @@ class ObjectIdField(BaseField):
 
     def __get__(self, instance, owner):
         value = super(ObjectIdField, self).__get__(instance, owner)
-        if isinstance(value, basestring):
-            value = unicode(value)
-        return value
+        if value is self:
+            return value
+        return self.from_json(value)
 
     def from_json(self, value):
+        if value is None:
+            # NoneType values are not jsonified by BaseDocument
+            return value
+
         if not isinstance(value, basestring):
             value = unicode(value)
-        return value
-
-    def to_json(self, value):
-        if not isinstance(value, basestring):
-            try:
-                return unicode(value)
-            except Exception, e:
-                self.raise_error(message=str(e))
         return value
 
     def validate(self, value):
