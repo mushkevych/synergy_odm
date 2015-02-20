@@ -4,6 +4,7 @@ import unittest
 import datetime
 
 from odm.errors import ValidationError
+from odm.pyversion import str_types
 from odm import document, fields
 
 
@@ -12,8 +13,8 @@ class TestDocument(unittest.TestCase):
         class FieldContainer(document.BaseDocument):
             field_datetime = fields.DateTimeField('dt', null=False)
 
-        dt_valid = datetime.datetime(year=2015, month=01, day=01, hour=23, minute=59, second=59)
-        dt_date_valid = datetime.date(year=2015, month=01, day=01)
+        dt_valid = datetime.datetime(year=2015, month=1, day=1, hour=23, minute=59, second=59)
+        dt_date_valid = datetime.date(year=2015, month=1, day=1)
         valid_formats = {
             '2015-01-01 23:59:59': dt_valid,
             dt_date_valid: dt_date_valid,
@@ -22,7 +23,7 @@ class TestDocument(unittest.TestCase):
         }
 
         model = FieldContainer()
-        for key, value in valid_formats.iteritems():
+        for key, value in valid_formats.items():
             try:
                 model.field_datetime = key
                 self.assertEqual(model.field_datetime, value)
@@ -38,12 +39,12 @@ class TestDocument(unittest.TestCase):
         class FieldContainer(document.BaseDocument):
             field_datetime = fields.DateTimeField('dt', null=False)
 
-        dt_valid = datetime.datetime(year=2015, month=01, day=01, hour=23, minute=59, second=59)
+        dt_valid = datetime.datetime(year=2015, month=1, day=1, hour=23, minute=59, second=59)
         model = FieldContainer(field_datetime=dt_valid)
 
         json_data = model.to_json()
         self.assertIsInstance(json_data, dict)
-        self.assertIsInstance(json_data['dt'], basestring)
+        self.assertIsInstance(json_data['dt'], str_types)
         m2 = FieldContainer.from_json(json_data)
         self.assertEqual(model.field_datetime, m2.field_datetime)
 

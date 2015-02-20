@@ -135,7 +135,7 @@ class BaseDocument(object):
 
     def validate(self):
         """Ensure that all fields' values are valid and that non-nullable fields are present. """
-        for field_name, field_obj in self._fields.iteritems():
+        for field_name, field_obj in self._fields.items():
             value = field_obj.__get__(self, self.__class__)
 
             if value is None and field_obj.null is False:
@@ -153,7 +153,7 @@ class BaseDocument(object):
         """Converts given document to JSON dict. """
         json_data = dict()
 
-        for field_name, field_obj in self._fields.iteritems():
+        for field_name, field_obj in self._fields.items():
             if isinstance(field_obj, NestedDocumentField):
                 nested_document = field_obj.__get__(self, self.__class__)
                 value = nested_document.to_json()
@@ -202,7 +202,7 @@ class BaseDocument(object):
     def from_json(cls, json_data):
         """ Converts json data to a new document instance"""
         new_instance = cls()
-        for field_name, field_obj in cls._get_fields().iteritems():
+        for field_name, field_obj in cls._get_fields().items():
             if isinstance(field_obj, NestedDocumentField):
                 if field_name in json_data:
                     nested_field = field_obj.__get__(new_instance, new_instance.__class__)

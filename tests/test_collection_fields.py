@@ -28,7 +28,7 @@ class TestDocument(unittest.TestCase):
         for i in range(1, 100):
             self.model.field_list.append(i)
 
-        self.assertItemsEqual(self.model.field_list, range(1, 100))
+        self.assertListEqual(self.model.field_list, list(range(1, 100)))
         self.assertDictEqual(self.model.field_dict, test_dict)
 
     def test_jsonification(self):
@@ -44,7 +44,7 @@ class TestDocument(unittest.TestCase):
         self.assertIsInstance(json_data, dict)
         m2 = EmbeddedCollections.from_json(json_data)
 
-        self.assertItemsEqual(m2.field_list, range(1, 100))
+        self.assertListEqual(m2.field_list, list(range(1, 100)))
         self.assertDictEqual(m2.field_dict, test_dict)
 
 

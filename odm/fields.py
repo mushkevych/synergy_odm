@@ -3,8 +3,8 @@ __author__ = 'Bohdan Mushkevych'
 import re
 import decimal
 import datetime
-from types import NoneType
 
+from odm.pyversion import str_types, txt_type
 from odm.errors import ValidationError
 DEFAULT_DT_FORMAT = '%Y-%m-%d %H:%M:%S'
 
@@ -98,10 +98,10 @@ class BaseField(object):
             if isinstance(self.choices[0], (list, tuple)):
                 option_keys = [k for k, v in self.choices]
                 if value not in option_keys:
-                    msg = ('Value %s is not listed among valid choices %s' % (value, unicode(option_keys)))
+                    msg = ('Value %s is not listed among valid choices %s' % (value, txt_type(option_keys)))
                     self.raise_error(msg)
             elif value not in self.choices:
-                msg = ('Value %s is not listed among valid choices %s' % (value, unicode(self.choices)))
+                msg = ('Value %s is not listed among valid choices %s' % (value, txt_type(self.choices)))
                 self.raise_error(msg)
 
 
@@ -135,7 +135,7 @@ class ListField(BaseField):
 
     def validate(self, value):
         """Make sure that the inspected value is of type `list` or `tuple` """
-        if not isinstance(value, (list, tuple)) or isinstance(value, basestring):
+        if not isinstance(value, (list, tuple)) or isinstance(value, str_types):
             self.raise_error('Only lists and tuples may be used in a ListField')
         super(ListField, self).validate(value)
 
@@ -169,10 +169,10 @@ class StringField(BaseField):
             # NoneType values are not jsonified by BaseDocument
             return value
 
-        if isinstance(value, unicode):
+        if isinstance(value, txt_type):
             return value
-        elif not isinstance(value, basestring):
-            return unicode(value)
+        elif not isinstance(value, str_types):
+            return txt_type(value)
         else:
             try:
                 value = value.decode('utf-8')
@@ -181,7 +181,7 @@ class StringField(BaseField):
             return value
 
     def validate(self, value):
-        if not isinstance(value, basestring):
+        if not isinstance(value, str_types):
             self.raise_error('StringField only accepts string values')
 
         if self.max_length is not None and len(value) > self.max_length:
@@ -279,16 +279,16 @@ class DecimalField(BaseField):
             return value
 
         if self.force_string:
-            return unicode(value)
+            return txt_type(value)
         return float(self.from_json(value))
 
     def validate(self, value):
         if not isinstance(value, decimal.Decimal):
-            if not isinstance(value, basestring):
-                value = unicode(value)
+            if not isinstance(value, str_types):
+                value = txt_type(value)
             try:
                 value = decimal.Decimal(value)
-            except Exception, exc:
+            except Exception as exc:
                 self.raise_error('Could not convert value to decimal: %s' % exc)
 
         if self.min_value is not None and value < self.min_value:
@@ -334,7 +334,7 @@ class DateTimeField(BaseField):
 
     def validate(self, value):
         new_value = self.to_json(value)
-        if not isinstance(new_value, basestring):
+        if not isinstance(new_value, str_types):
             self.raise_error(u'cannot parse date "%s"' % value)
 
     def to_json(self, value):
@@ -354,18 +354,18 @@ class DateTimeField(BaseField):
             # NoneType values are not jsonified by BaseDocument
             return value
 
-        if isinstance(value, basestring):
+        if isinstance(value, str_types):
             return datetime.datetime.strptime(value, self.dt_format)
         if isinstance(value, (datetime.datetime, datetime.date)):
             return value
         raise ValueError('DateTimeField.from_json expects data of string type vs {0}'.format(type(value).__name__))
 
     def __set__(self, instance, value):
-        if isinstance(value, (datetime.datetime, datetime.date, NoneType)):
+        if value is None or isinstance(value, (datetime.datetime, datetime.date)):
             pass
-        elif isinstance(value, (int, long, float)):
+        elif isinstance(value, (int, float)):
             value = datetime.datetime.fromtimestamp(value)
-        elif isinstance(value, basestring):
+        elif isinstance(value, str_types):
             value = datetime.datetime.strptime(value, self.dt_format)
         else:
             raise ValueError('DateTimeField.__set__ unknown datetime type: {0}'.format(type(value).__name__))
@@ -387,12 +387,12 @@ class ObjectIdField(BaseField):
             # NoneType values are not jsonified by BaseDocument
             return value
 
-        if not isinstance(value, basestring):
-            value = unicode(value)
+        if not isinstance(value, str_types):
+            value = txt_type(value)
         return value
 
     def validate(self, value):
         try:
-            unicode(value)
+            txt_type(value)
         except:
             self.raise_error('ObjectIdField.validate unable to cast value %r to unicode' % value)
