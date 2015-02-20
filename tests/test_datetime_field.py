@@ -8,7 +8,7 @@ from odm import document, fields
 
 
 class TestDocument(unittest.TestCase):
-    def test_datetime_fields(self):
+    def test_date_formats(self):
         class FieldContainer(document.BaseDocument):
             field_datetime = fields.DateTimeField('dt', null=False)
 
@@ -33,6 +33,24 @@ class TestDocument(unittest.TestCase):
                 self.assertTrue(False, 'ValidationError was not expected but caught')
             except ValueError:
                 self.assertTrue(False, 'ValueError was not expected but caught')
+
+    def test_jsonification(self):
+        class FieldContainer(document.BaseDocument):
+            field_datetime = fields.DateTimeField('dt', null=False)
+
+        dt_valid = datetime.datetime(year=2015, month=01, day=01, hour=23, minute=59, second=59)
+        model = FieldContainer(field_datetime=dt_valid)
+
+        json_data = model.to_json()
+        self.assertIsInstance(json_data, dict)
+        self.assertIsInstance(json_data['dt'], basestring)
+        m2 = FieldContainer.from_json(json_data)
+        self.assertEqual(model.field_datetime, m2.field_datetime)
+
+        json_data['dt'] = dt_valid
+        self.assertIsInstance(json_data['dt'], datetime.datetime)
+        m3 = FieldContainer.from_json(json_data)
+        self.assertEqual(model.field_datetime, m3.field_datetime)
 
 
 if __name__ == '__main__':

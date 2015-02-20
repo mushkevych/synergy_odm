@@ -23,7 +23,7 @@ class ValidationError(AssertionError):
         message = super(ValidationError, self).__getattribute__(name)
         if name == 'message':
             if self.field_name:
-                message = '%s' % message
+                message = '%s: %s' % (self.field_name, message)
             if self.errors:
                 message = '%s(%s)' % (message, self._format_errors())
         return message

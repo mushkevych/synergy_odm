@@ -136,7 +136,7 @@ class ListField(BaseField):
     def validate(self, value):
         """Make sure that the inspected value is of type `list` or `tuple` """
         if not isinstance(value, (list, tuple)) or isinstance(value, basestring):
-            self.raise_error('Only lists and tuples may be used in a list field')
+            self.raise_error('Only lists and tuples may be used in a ListField')
         super(ListField, self).validate(value)
 
 
@@ -185,13 +185,13 @@ class StringField(BaseField):
             self.raise_error('StringField only accepts string values')
 
         if self.max_length is not None and len(value) > self.max_length:
-            self.raise_error('String value is too long')
+            self.raise_error('StringField value is too long')
 
         if self.min_length is not None and len(value) < self.min_length:
-            self.raise_error('String value is too short')
+            self.raise_error('StringField value is too short')
 
         if self.regex is not None and self.regex.match(value) is None:
-            self.raise_error('String value did not match validation regex')
+            self.raise_error('StringField value did not match validation regex')
 
         super(StringField, self).validate(value)
 
@@ -334,7 +334,7 @@ class DateTimeField(BaseField):
 
     def validate(self, value):
         new_value = self.to_json(value)
-        if not isinstance(new_value, (basestring, str, unicode)):
+        if not isinstance(new_value, basestring):
             self.raise_error(u'cannot parse date "%s"' % value)
 
     def to_json(self, value):
@@ -347,18 +347,18 @@ class DateTimeField(BaseField):
 
         if isinstance(value, (datetime.datetime, datetime.date)):
             return value.strftime(self.dt_format)
-        else:
-            raise ValueError('unknown datetime type: {0}'.format(type(value).__name__))
+        raise ValueError('DateTimeField.to_json unknown datetime type: {0}'.format(type(value).__name__))
 
     def from_json(self, value):
         if value is None:
             # NoneType values are not jsonified by BaseDocument
             return value
 
-        if not isinstance(value, basestring):
-            raise ValueError('from_json expects data of string type vs {0}'.format(type(value).__name__))
-
-        return datetime.datetime.strptime(value, self.dt_format)
+        if isinstance(value, basestring):
+            return datetime.datetime.strptime(value, self.dt_format)
+        if isinstance(value, (datetime.datetime, datetime.date)):
+            return value
+        raise ValueError('DateTimeField.from_json expects data of string type vs {0}'.format(type(value).__name__))
 
     def __set__(self, instance, value):
         if isinstance(value, (datetime.datetime, datetime.date, NoneType)):
@@ -368,7 +368,7 @@ class DateTimeField(BaseField):
         elif isinstance(value, basestring):
             value = datetime.datetime.strptime(value, self.dt_format)
         else:
-            raise ValueError('unknown datetime type: {0}'.format(type(value).__name__))
+            raise ValueError('DateTimeField.__set__ unknown datetime type: {0}'.format(type(value).__name__))
 
         super(DateTimeField, self).__set__(instance, value)
 
@@ -395,4 +395,4 @@ class ObjectIdField(BaseField):
         try:
             unicode(value)
         except:
-            self.raise_error('Invalid Object ID')
+            self.raise_error('ObjectIdField.validate unable to cast value %r to unicode' % value)
