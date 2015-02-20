@@ -8,7 +8,7 @@ class FieldDoesNotExist(Exception):
 class ValidationError(AssertionError):
     """Validation exception. """
 
-    def __init__(self, message="", **kwargs):
+    def __init__(self, message='', **kwargs):
         self.errors = kwargs.get('errors', {})
         self.field_name = kwargs.get('field_name')
         self.message = message
