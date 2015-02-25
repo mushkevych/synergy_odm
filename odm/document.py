@@ -156,7 +156,7 @@ class BaseDocument(object):
         for field_name, field_obj in self._fields.items():
             if isinstance(field_obj, NestedDocumentField):
                 nested_document = field_obj.__get__(self, self.__class__)
-                value = nested_document.to_json()
+                value = None if nested_document is None else nested_document.to_json()
             elif isinstance(field_obj, BaseField):
                 value = field_obj.__get__(self, self.__class__)
                 value = field_obj.to_json(value)

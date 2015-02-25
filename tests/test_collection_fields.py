@@ -47,6 +47,21 @@ class TestDocument(unittest.TestCase):
         self.assertListEqual(m2.field_list, list(range(1, 100)))
         self.assertDictEqual(m2.field_dict, test_dict)
 
+    def test_nullable_jsonification(self):
+        class FieldContainer(document.BaseDocument):
+            field_list = fields.ListField('s', null=True)
+            field_dict = fields.DictField('i', null=True)
+
+        model = FieldContainer()
+        json_data = model.to_json()
+        self.assertIsInstance(json_data, dict)
+        self.assertIsNone(model.field_list)
+        self.assertIsNone(model.field_dict)
+        m2 = FieldContainer.from_json(json_data)
+
+        self.assertIsNone(m2.field_list)
+        self.assertIsNone(m2.field_dict)
+
 
 if __name__ == '__main__':
     unittest.main()

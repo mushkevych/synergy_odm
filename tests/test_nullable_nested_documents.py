@@ -27,7 +27,7 @@ class TestDocument(unittest.TestCase):
         except AttributeError:
             self.assertTrue(True, 'AttributeError was expected and caught')
 
-    def test_jsonification(self):
+    def test_init_jsonification(self):
         now = datetime.now()
 
         self.model.field_integer = 123456789
@@ -51,6 +51,17 @@ class TestDocument(unittest.TestCase):
 
         self.model.field_nested.field_integer = 999
         self.assertNotEqual(self.model.field_nested.field_integer, m2.field_nested.field_integer)
+
+    def test_null_jsonification(self):
+        self.model.field_integer = 123456789
+
+        json_data = self.model.to_json()
+        self.assertIsNone(self.model.field_nested)
+        self.assertIsInstance(json_data, dict)
+        m2 = NestedNullableDocuments.from_json(json_data)
+
+        self.assertEqual(self.model.field_integer, m2.field_integer)
+        self.assertIsNone(m2.field_nested)
 
 
 if __name__ == '__main__':
