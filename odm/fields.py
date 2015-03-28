@@ -303,13 +303,33 @@ class DecimalField(BaseField):
 class BooleanField(BaseField):
     """A boolean field type. """
 
+    def __set__(self, instance, value):
+        value = self.from_json(value)
+        super(BooleanField, self).__set__(instance, value)
+
+    @classmethod
+    def parse(cls, value):
+        if not value:
+            return False
+
+        if not isinstance(value, str_types):
+            # case numbers if needed to the string
+            value = str(value)
+
+        if value.lower() in ['true', 'yes', '1']:
+            return True
+        elif value.lower() in ['false', 'no', '0']:
+            return False
+        else:
+            raise ValueError('Cannot covert {0} to a bool'.format(value))
+
     def from_json(self, value):
         if value is None:
             # NoneType values are not jsonified by BaseDocument
             return value
 
         try:
-            value = bool(value)
+            value = BooleanField.parse(value)
         except ValueError:
             pass
         return value
