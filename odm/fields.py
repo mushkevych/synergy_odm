@@ -345,7 +345,7 @@ class DateTimeField(BaseField):
     - If a string value is assigned to the field, then it is assumed to be in dt_format
       and converted to the datetime object
     - If an integer is assigned to the field, then it is considered to represent number of seconds since epoch
-      and converted to the datetime object
+      in UTC and converted to the datetime object
     - During json serialization, value is converted to the string accordingly to dt_format. """
 
     def __init__(self, field_name, dt_format=DEFAULT_DT_FORMAT, **kwargs):
@@ -384,7 +384,7 @@ class DateTimeField(BaseField):
         if value is None or isinstance(value, (datetime.datetime, datetime.date)):
             pass
         elif isinstance(value, (int, float)):
-            value = datetime.datetime.fromtimestamp(value)
+            value = datetime.datetime.utcfromtimestamp(value)
         elif isinstance(value, str_types):
             value = datetime.datetime.strptime(value, self.dt_format)
         else:

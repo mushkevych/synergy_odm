@@ -1,5 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
+import time
 import unittest
 import datetime
 
@@ -13,13 +14,16 @@ class TestDocument(unittest.TestCase):
         class FieldContainer(document.BaseDocument):
             field_datetime = fields.DateTimeField('dt', null=False)
 
+        utc_timestamp = time.time()
         dt_valid = datetime.datetime(year=2015, month=1, day=1, hour=23, minute=59, second=59)
+        dt_valid_timestamp = int(dt_valid.strftime('%s'))
         dt_date_valid = datetime.date(year=2015, month=1, day=1)
         valid_formats = {
             '2015-01-01 23:59:59': dt_valid,
             dt_date_valid: dt_date_valid,
             dt_valid: dt_valid,
-            int(dt_valid.strftime('%s')): dt_valid
+            dt_valid_timestamp: datetime.datetime.utcfromtimestamp(dt_valid_timestamp),
+            utc_timestamp: datetime.datetime.utcfromtimestamp(utc_timestamp)
         }
 
         model = FieldContainer()
