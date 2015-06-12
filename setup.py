@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name = 'synergy_odm',
-      version = '0.6',
+      version = '0.7',
       description = 'Synergy Object-Document Mapper',
       author = 'Bohdan Mushkevych',
       author_email = 'mushkevych@gmail.com',
@@ -10,7 +10,7 @@ setup(name = 'synergy_odm',
       long_description = '''Object Document Mapping for convenient python-to-json and json-to-python conversions''',
       license = 'Modified BSD License',
       classifiers = [
-          'Development Status :: 4 - Beta',
+          'Development Status :: 5 - Production/Stable',
           'Environment :: Console',
           'Intended Audience :: Developers',
           'License :: OSI Approved :: BSD License',
