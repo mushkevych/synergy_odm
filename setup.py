@@ -8,7 +8,7 @@ setup(name = 'synergy_odm',
       url = 'https://github.com/mushkevych/synergy_odm',
       packages = ['odm'],
       long_description = '''Object Document Mapping for convenient python-to-json and json-to-python conversions''',
-      license = 'Modified BSD License',
+      license = 'BSD 3-Clause License',
       classifiers = [
           'Development Status :: 5 - Production/Stable',
           'Environment :: Console',
