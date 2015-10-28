@@ -1,6 +1,8 @@
 Synergy Object-Document Mapping
 =========
 
+[![Build Status](https://travis-ci.org/mushkevych/synergy_odm.svg?branch=master)](https://travis-ci.org/mushkevych/synergy_odm)  
+
 Object Document Mapping for convenient python-to-json and json-to-python conversions
 
 Usage example:
@@ -64,6 +66,6 @@ To run all tests from the *tests* directory, run following from the command line
     $> python -m unittest discover tests
 
 
-Os-Level Dependencies
+Dependencies
 ---------
-1. python 2.7+  
+1. python 2.7+ / 3.4+  
