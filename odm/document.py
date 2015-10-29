@@ -29,7 +29,10 @@ class BaseDocument(object):
             super(BaseDocument, self).__delattr__(name)
         else:
             field = self._attributes[name]
-            if field.null or field.default is not None:
+            if field.raw_value(self) is None:
+                # do not delete non-initialized field
+                pass
+            elif field.null or field.default is not None:
                 setattr(self, name, field.default)
             else:
                 # field.null is False and default is None

@@ -47,6 +47,14 @@ class BaseField(object):
             value = value()
         return value
 
+    def raw_value(self, instance):
+        if instance is None:
+            # Document class being used rather than a document object
+            return self
+
+        # retrieve value from a BaseDocument instance if available
+        return instance._data.get(self.field_name)
+
     def __get__(self, instance, owner):
         """ Descriptor for retrieving a value from a field in a document. """
         if instance is None:
@@ -60,26 +68,30 @@ class BaseField(object):
 
         # value is None at this point
         if self.default is not None:
-            self.validate(self.default)
-            instance._data[self.field_name] = self.default
+            value = self.default
+            self.validate(value)
+            instance._data[self.field_name] = value
         return value
 
     def __set__(self, instance, value):
         """ Descriptor for assigning a value to a field in a document. """
+        skip_validation = False
 
         # If setting to None and there is a default
         # Then set the value to the default value
         if value is None:
-            if self.null:
-                value = None
-            elif self.default is not None:
+            if self.default is not None:
                 value = self.default
+            elif self.null:
+                # force setting value to None
+                skip_validation = True
             else:
                 # self.null is False and self.default is None
                 # let the self.validate take care of reporting the exception
                 pass
 
-        self.validate(value)
+        if not skip_validation:
+            self.validate(value)
         instance._data[self.field_name] = value
 
     def __delete__(self, instance):
