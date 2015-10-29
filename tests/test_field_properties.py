@@ -2,6 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 import unittest
 from odm import document, fields
+from odm.errors import ValidationError
 
 
 class TestDocument(unittest.TestCase):
@@ -112,6 +113,26 @@ class TestDocument(unittest.TestCase):
 
         del model.field_integer
         self.assertEqual(model.field_integer, 100)
+
+    def test_non_nullable_assignment(self):
+        class FieldContainer(document.BaseDocument):
+            field_integer = fields.IntegerField('i', null=False)
+
+        model = FieldContainer()
+        self.assertIsNone(model.field_integer)
+
+        try:
+            model.field_integer = 101
+            self.assertTrue(True, 'Validation should succeed')
+        except ValidationError:
+            self.assertTrue(False, 'ValidationError should not have been thrown')
+
+        try:
+            model.field_integer = None
+            self.assertTrue(False, 'ValidationError should have been thrown')
+        except ValidationError:
+            self.assertTrue(True, 'ValidationError was expected and caught')
+
 
 if __name__ == '__main__':
     unittest.main()

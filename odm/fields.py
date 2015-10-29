@@ -47,13 +47,11 @@ class BaseField(object):
             value = value()
         return value
 
-    def raw_value(self, instance):
+    def initialized(self, instance):
         if instance is None:
-            # Document class being used rather than a document object
-            return self
-
-        # retrieve value from a BaseDocument instance if available
-        return instance._data.get(self.field_name)
+            # Document class being used rather than a document object. Guessing True
+            return True
+        return instance._data.get(self.field_name) is not None
 
     def __get__(self, instance, owner):
         """ Descriptor for retrieving a value from a field in a document. """
