@@ -75,24 +75,23 @@ class BaseField(object):
 
     def __set__(self, instance, value):
         """ Descriptor for assigning a value to a field in a document. """
-        skip_validation = False
-
-        # If setting to None and there is a default
-        # Then set the value to the default value
-        if value is None:
-            if self.default is not None:
-                value = self.default
-            elif self.null:
-                # force setting value to None
-                skip_validation = True
-            else:
-                # self.null is False and self.default is None
-                # let the self.validate take care of reporting the exception
-                pass
-
-        if not skip_validation:
+        if value is not None:
             self.validate(value)
-        instance._data[self.field_name] = value
+            instance._data[self.field_name] = value
+        elif self.null:
+            # value is None and self.null is True
+            # skip validation; force setting value to None
+            instance._data[self.field_name] = value
+        elif self.default is not None:
+            # value is None and self.null is False and self.default is not None
+            value = self.default
+            self.validate(value)
+            instance._data[self.field_name] = value
+        else:
+            # value is None and self.null is False and self.default is None
+            # let the self.validate take care of reporting the exception
+            self.validate(value)
+            instance._data[self.field_name] = value
 
     def __delete__(self, instance):
         if self.field_name in instance._data:
@@ -183,10 +182,9 @@ class DictField(BaseField):
 class StringField(BaseField):
     """A unicode string field. """
 
-    def __init__(self, field_name, regex=None, max_length=None, min_length=None, **kwargs):
+    def __init__(self, field_name, regex=None, min_length=None, max_length=None, **kwargs):
         self.regex = re.compile(regex) if regex else None
-        self.max_length = max_length
-        self.min_length = min_length
+        self.min_length, self.max_length = min_length, max_length
         super(StringField, self).__init__(field_name, **kwargs)
 
     def from_json(self, value):
@@ -283,8 +281,7 @@ class DecimalField(BaseField):
             Defaults to: ``decimal.ROUND_HALF_UP``
 
         """
-        self.min_value = min_value
-        self.max_value = max_value
+        self.min_value, self.max_value = min_value, max_value
         self.force_string = force_string
         self.precision = precision
         self.rounding = rounding

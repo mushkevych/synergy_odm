@@ -35,7 +35,7 @@ class BaseDocument(object):
             elif field.null or field.default is not None:
                 setattr(self, name, field.default)
             else:
-                # field.null is False and default is None
+                # field.null is False and field.default is None
                 field.__delete__(self)
 
     def __setattr__(self, name, value):
