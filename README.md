@@ -1,7 +1,8 @@
 Synergy Object-Document Mapping
 =========
 
-[![Build Status](https://travis-ci.org/mushkevych/synergy_odm.svg?branch=master)](https://travis-ci.org/mushkevych/synergy_odm)  
+[![PyPI version](https://img.shields.io/pypi/v/synergy_odm.svg)](https://pypi.python.org/pypi/synergy_odm)
+[![Build Status](https://travis-ci.org/mushkevych/synergy_odm.svg?branch=master)](https://travis-ci.org/mushkevych/synergy_odm)
 
 Object Document Mapping for convenient python-to-json and json-to-python conversions
 
