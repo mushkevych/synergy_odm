@@ -17,13 +17,13 @@ class ValidationError(AssertionError):
         return txt_type(self.message)
 
     def __repr__(self):
-        return '%s(%s,)' % (self.__class__.__name__, self.message)
+        return '{0}({1},)'.format(self.__class__.__name__, self.message)
 
     def __getattribute__(self, name):
         message = super(ValidationError, self).__getattribute__(name)
         if name == 'message':
             if self.field_name:
-                message = '%s: %s' % (self.field_name, message)
+                message = '{0}: {1}'.format(self.field_name, message)
             if self.errors:
-                message = '%s(%s)' % (message, self._format_errors())
+                message = '{0}({1})'.format(message, self._format_errors())
         return message

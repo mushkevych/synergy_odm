@@ -25,13 +25,15 @@ class BaseDocument(object):
 
     def __delattr__(self, name):
         """Handle deletions of fields"""
-        if name in self._attributes:
-            default = self._attributes[name].default
-            if callable(default):
-                default = default()
-            setattr(self, name, default)
-        else:
+        if name not in self._attributes:
             super(BaseDocument, self).__delattr__(name)
+        else:
+            field = self._attributes[name]
+            if field.null or field.default is not None:
+                setattr(self, name, field.default)
+            else:
+                # field.null is False and default is None
+                field.__delete__(self)
 
     def __setattr__(self, name, value):
         super(BaseDocument, self).__setattr__(name, value)
@@ -91,7 +93,7 @@ class BaseDocument(object):
         except (UnicodeEncodeError, UnicodeDecodeError):
             u = '[Bad Unicode data]'
         repr_type = str if u is None else type(u)
-        return repr_type('<%s: %s>' % (self.__class__.__name__, u))
+        return repr_type('<{0}: {1}>'.format(self.__class__.__name__, u))
 
     def __str__(self):
         if hasattr(self, '__unicode__'):
@@ -99,7 +101,7 @@ class BaseDocument(object):
                 return self.__unicode__()
             else:
                 return unicode(self).encode('utf-8')
-        return txt_type('%s object' % self.__class__.__name__)
+        return txt_type('{0} object'.format(self.__class__.__name__))
 
     def __eq__(self, other):
         if self is other:
@@ -121,13 +123,13 @@ class BaseDocument(object):
 
     @property
     def key(self):
-        raise NotImplementedError('property key.getter is not implemented in BaseDocument child %s'
-                                  % self.__class__.__name__)
+        raise NotImplementedError('property key.getter is not implemented in BaseDocument child {0}'
+                                  .format(self.__class__.__name__))
 
     @key.setter
     def key(self, value):
-        raise NotImplementedError('property key.getter is not implemented in BaseDocument child %s'
-                                  % self.__class__.__name__)
+        raise NotImplementedError('property key.getter is not implemented in BaseDocument child {0}'
+                                  .format(self.__class__.__name__))
 
     @property
     def document(self):
@@ -165,6 +167,7 @@ class BaseDocument(object):
                 continue
 
             if value is None:
+                # skip fields with None value 
                 continue
 
             json_data[field_name] = value

@@ -30,12 +30,22 @@ class BaseField(object):
             then the default value is set
         """
         self.field_name = field_name
-        self.default = default
+        self._default = default
         self.choices = choices
         self.verbose_name = verbose_name
         self.null = null
         self.creation_counter = BaseField.creation_counter + 1
         BaseField.creation_counter += 1
+
+    @property
+    def default(self):
+        if self._default is None:
+            return None
+
+        value = self._default
+        if callable(value):
+            value = value()
+        return value
 
     def __get__(self, instance, owner):
         """ Descriptor for retrieving a value from a field in a document. """
@@ -50,10 +60,8 @@ class BaseField(object):
 
         # value is None at this point
         if self.default is not None:
-            value = self.default
-            if callable(value):
-                value = value()
-            instance._data[self.field_name] = value
+            self.validate(self.default)
+            instance._data[self.field_name] = self.default
         return value
 
     def __set__(self, instance, value):
@@ -66,9 +74,12 @@ class BaseField(object):
                 value = None
             elif self.default is not None:
                 value = self.default
-                if callable(value):
-                    value = value()
+            else:
+                # self.null is False and self.default is None
+                # let the self.validate take care of reporting the exception
+                pass
 
+        self.validate(value)
         instance._data[self.field_name] = value
 
     def __delete__(self, instance):
@@ -98,10 +109,10 @@ class BaseField(object):
             if isinstance(self.choices[0], (list, tuple)):
                 option_keys = [k for k, v in self.choices]
                 if value not in option_keys:
-                    msg = ('Value %s is not listed among valid choices %s' % (value, txt_type(option_keys)))
+                    msg = ('Value {0} is not listed among valid choices {1}'.format(value, option_keys))
                     self.raise_error(msg)
             elif value not in self.choices:
-                msg = ('Value %s is not listed among valid choices %s' % (value, txt_type(self.choices)))
+                msg = ('Value {0} is not listed among valid choices {1}'.format(value, self.choices))
                 self.raise_error(msg)
 
 
@@ -121,8 +132,8 @@ class NestedDocumentField(BaseField):
     def validate(self, value):
         """Make sure that value is of the right type """
         if not isinstance(value, self.nested_klass):
-            self.raise_error('NestedClass is of the wrong type: %s vs expected %s'
-                             % (value.__class__.__name__, self.nested_klass.__name__))
+            self.raise_error('NestedClass is of the wrong type: {0} vs expected {1}'
+                             .format(value.__class__.__name__, self.nested_klass.__name__))
         super(NestedDocumentField, self).validate(value)
 
 
@@ -136,7 +147,8 @@ class ListField(BaseField):
     def validate(self, value):
         """Make sure that the inspected value is of type `list` or `tuple` """
         if not isinstance(value, (list, tuple)) or isinstance(value, str_types):
-            self.raise_error('Only lists and tuples may be used in a ListField')
+            self.raise_error('Only lists and tuples may be used in the ListField vs provided {0}'
+                             .format(type(value).__name__))
         super(ListField, self).validate(value)
 
 
@@ -151,7 +163,8 @@ class DictField(BaseField):
     def validate(self, value):
         """Make sure that the inspected value is of type `dict` """
         if not isinstance(value, dict):
-            self.raise_error('Only Python dict may be used in a DictField')
+            self.raise_error('Only Python dict may be used in the DictField vs provided {0}'
+                             .format(type(value).__name__))
         super(DictField, self).validate(value)
 
 
@@ -182,16 +195,20 @@ class StringField(BaseField):
 
     def validate(self, value):
         if not isinstance(value, str_types):
-            self.raise_error('StringField only accepts string values')
+            self.raise_error('Only string types may be used in the StringField vs provided {0}'
+                             .format(type(value).__name__))
 
         if self.max_length is not None and len(value) > self.max_length:
-            self.raise_error('StringField value is too long')
+            self.raise_error('StringField value {0} length {1} is longer than max_length {2}'
+                             .format(value, len(value), self.max_length))
 
         if self.min_length is not None and len(value) < self.min_length:
-            self.raise_error('StringField value is too short')
+            self.raise_error('StringField value {0} length {1} is shorter than min_length {2}'
+                             .format(value, len(value), self.min_length))
 
         if self.regex is not None and self.regex.match(value) is None:
-            self.raise_error('StringField value did not match validation regex')
+            self.raise_error('StringField value {0} did not match validation regex {1}'
+                             .format(value, self.regex))
 
         super(StringField, self).validate(value)
 
@@ -218,13 +235,13 @@ class IntegerField(BaseField):
         try:
             value = int(value)
         except:
-            self.raise_error('%s could not be converted to int' % value)
+            self.raise_error('Could not parse {0} into an Integer'.format(value))
 
         if self.min_value is not None and value < self.min_value:
-            self.raise_error('IntegerField value is too small')
+            self.raise_error('IntegerField value {0} is lower than min value {1}'.format(value, self.min_value))
 
         if self.max_value is not None and value > self.max_value:
-            self.raise_error('IntegerField value is too large')
+            self.raise_error('IntegerField value {0} is larger than max value {1}'.format(value, self.max_value))
 
         super(IntegerField, self).validate(value)
 
@@ -271,7 +288,7 @@ class DecimalField(BaseField):
             value = decimal.Decimal(str(value))
         except decimal.InvalidOperation:
             return value
-        return value.quantize(decimal.Decimal('.%s' % ('0' * self.precision)), rounding=self.rounding)
+        return value.quantize(decimal.Decimal('.{0}'.format('0' * self.precision)), rounding=self.rounding)
 
     def to_json(self, value):
         if value is None:
@@ -288,14 +305,14 @@ class DecimalField(BaseField):
                 value = txt_type(value)
             try:
                 value = decimal.Decimal(value)
-            except Exception as exc:
-                self.raise_error('Could not convert value to decimal: %s' % exc)
+            except Exception:
+                self.raise_error('Could not parse {0} into a Decimal'.format(value))
 
         if self.min_value is not None and value < self.min_value:
-            self.raise_error('DecimalField value is too small')
+            self.raise_error('DecimalField value {0} is lower than min value {1}'.format(value, self.min_value))
 
         if self.max_value is not None and value > self.max_value:
-            self.raise_error('DecimalField value is too large')
+            self.raise_error('DecimalField value {0} is larger than max value {1}'.format(value, self.max_value))
 
         super(DecimalField, self).validate(value)
 
@@ -315,13 +332,14 @@ class BooleanField(BaseField):
         if not isinstance(value, str_types):
             # case numbers if needed to the string
             value = str(value)
+        value = value.lower().strip()
 
-        if value.lower() in ['true', 'yes', '1']:
+        if value in ['true', 'yes', '1']:
             return True
-        elif value.lower() in ['false', 'no', '0']:
+        elif value in ['false', 'no', '0']:
             return False
         else:
-            raise ValueError('Cannot covert {0} to a bool'.format(value))
+            raise ValueError('Could not parse {0} into a bool'.format(value))
 
     def from_json(self, value):
         if value is None:
@@ -355,7 +373,7 @@ class DateTimeField(BaseField):
     def validate(self, value):
         new_value = self.to_json(value)
         if not isinstance(new_value, str_types):
-            self.raise_error(u'cannot parse date "%s"' % value)
+            self.raise_error('Could not parse "{0}" into a date'.format(value))
 
     def to_json(self, value):
         if value is None:
@@ -415,4 +433,4 @@ class ObjectIdField(BaseField):
         try:
             txt_type(value)
         except:
-            self.raise_error('ObjectIdField.validate unable to cast value %r to unicode' % value)
+            self.raise_error('Could not parse {0} into a unicode'.format(value))
