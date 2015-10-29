@@ -114,24 +114,60 @@ class TestDocument(unittest.TestCase):
         del model.field_integer
         self.assertEqual(model.field_integer, 100)
 
-    def test_non_nullable_assignment(self):
+    def test_non_nullable_non_default_assignment(self):
         class FieldContainer(document.BaseDocument):
             field_integer = fields.IntegerField('i', null=False)
 
         model = FieldContainer()
         self.assertIsNone(model.field_integer)
 
-        try:
-            model.field_integer = 101
-            self.assertTrue(True, 'Validation should succeed')
-        except ValidationError:
-            self.assertTrue(False, 'ValidationError should not have been thrown')
+        model.field_integer = 101
+        self.assertEqual(model.field_integer, 101)
 
         try:
             model.field_integer = None
             self.assertTrue(False, 'ValidationError should have been thrown')
         except ValidationError:
             self.assertTrue(True, 'ValidationError was expected and caught')
+
+    def test_non_nullable_default_assignment(self):
+        class FieldContainer(document.BaseDocument):
+            field_integer = fields.IntegerField('i', null=False, default=987654321)
+
+        model = FieldContainer()
+        self.assertEqual(model.field_integer, 987654321)
+
+        model.field_integer = 101
+        self.assertEqual(model.field_integer, 101)
+
+        model.field_integer = None
+        self.assertEqual(model.field_integer, 987654321)
+
+    def test_nullable_non_default_assignment(self):
+        class FieldContainer(document.BaseDocument):
+            field_integer = fields.IntegerField('i', null=True)
+
+        model = FieldContainer()
+        self.assertIsNone(model.field_integer)
+
+        model.field_integer = 101
+        self.assertEqual(model.field_integer, 101)
+
+        model.field_integer = None
+        self.assertIsNone(model.field_integer)
+
+    def test_nullable_default_assignment(self):
+        class FieldContainer(document.BaseDocument):
+            field_integer = fields.IntegerField('i', null=True, default=987654321)
+
+        model = FieldContainer()
+        self.assertIsNone(model.field_integer)
+
+        model.field_integer = 101
+        self.assertEqual(model.field_integer, 101)
+
+        model.field_integer = None
+        self.assertIsNone(model.field_integer)
 
 
 if __name__ == '__main__':
