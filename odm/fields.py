@@ -185,6 +185,10 @@ class StringField(BaseField):
         self.min_length, self.max_length = min_length, max_length
         super(StringField, self).__init__(field_name, **kwargs)
 
+    def __set__(self, instance, value):
+        value = self.from_json(value)
+        super(StringField, self).__set__(instance, value)
+
     def from_json(self, value):
         if value is None:
             # NoneType values are not jsonified by BaseDocument
@@ -227,6 +231,10 @@ class IntegerField(BaseField):
     def __init__(self, field_name, min_value=None, max_value=None, **kwargs):
         self.min_value, self.max_value = min_value, max_value
         super(IntegerField, self).__init__(field_name, **kwargs)
+
+    def __set__(self, instance, value):
+        value = self.from_json(value)
+        super(IntegerField, self).__set__(instance, value)
 
     def from_json(self, value):
         if value is None:
@@ -377,6 +385,10 @@ class DateTimeField(BaseField):
         self.dt_format = dt_format
         super(DateTimeField, self).__init__(field_name, **kwargs)
 
+    def __set__(self, instance, value):
+        value = self.from_json(value)
+        super(DateTimeField, self).__set__(instance, value)
+
     def validate(self, value):
         new_value = self.to_json(value)
         if not isinstance(new_value, str_types):
@@ -399,23 +411,14 @@ class DateTimeField(BaseField):
             # NoneType values are not jsonified by BaseDocument
             return value
 
-        if isinstance(value, str_types):
-            return datetime.datetime.strptime(value, self.dt_format)
         if isinstance(value, (datetime.datetime, datetime.date)):
             return value
-        raise ValueError('DateTimeField.from_json expects data of string type vs {0}'.format(type(value).__name__))
-
-    def __set__(self, instance, value):
-        if value is None or isinstance(value, (datetime.datetime, datetime.date)):
-            pass
-        elif isinstance(value, (int, float)):
-            value = datetime.datetime.utcfromtimestamp(value)
-        elif isinstance(value, str_types):
-            value = datetime.datetime.strptime(value, self.dt_format)
-        else:
-            raise ValueError('DateTimeField.__set__ unknown datetime type: {0}'.format(type(value).__name__))
-
-        super(DateTimeField, self).__set__(instance, value)
+        if isinstance(value, str_types):
+            return datetime.datetime.strptime(value, self.dt_format)
+        if isinstance(value, (int, float)):
+            return datetime.datetime.utcfromtimestamp(value)
+        raise ValueError('DateTimeField.from_json expects data of string/int/float types vs {0}'
+                         .format(type(value).__name__))
 
 
 class ObjectIdField(BaseField):
@@ -426,6 +429,10 @@ class ObjectIdField(BaseField):
         if value is self:
             return value
         return self.from_json(value)
+
+    def __set__(self, instance, value):
+        value = self.from_json(value)
+        super(ObjectIdField, self).__set__(instance, value)
 
     def from_json(self, value):
         if value is None:

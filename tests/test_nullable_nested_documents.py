@@ -4,7 +4,7 @@ import unittest
 from datetime import datetime, timedelta
 
 from odm import document, fields
-from tests.test_simple_fields import SimpleContainer
+from tests.test_document_operations import SimpleContainer
 
 
 class NestedNullableDocuments(document.BaseDocument):
