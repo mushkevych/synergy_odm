@@ -63,6 +63,63 @@ class TestDocument(unittest.TestCase):
                 self.assertTrue(False, 'ValueError was not expected but caught for value {0}'
                                 .format(value))
 
+    def test_nullable(self):
+        class FieldContainer(document.BaseDocument):
+            field_boolean = fields.BooleanField('b', null=True)
+
+        model = FieldContainer()
+
+        try:
+            model.validate()
+            self.assertTrue(True, 'Validation should succeed')
+        except ValidationError:
+            self.assertTrue(False, 'ValidationError should not have been thrown')
+
+        model.field_boolean = None
+        self.assertTrue(True, 'Validation should succeed')
+
+    def test_non_nullable(self):
+        class FieldContainer(document.BaseDocument):
+            field_boolean = fields.BooleanField('b', null=False)
+
+        model = FieldContainer()
+        try:
+            model.validate()
+            self.assertTrue(False, 'Validation should have failed')
+        except ValidationError:
+            self.assertTrue(True, 'ValidationError should not have been thrown')
+
+        model.field_boolean = True
+        self.assertTrue(model.field_boolean)
+
+        try:
+            model.field_boolean = None
+            self.assertTrue(False, 'ValidationError should have been thrown')
+        except ValidationError:
+            self.assertTrue(True, 'ValidationError was expected and caught')
+
+    def test_nullable_jsonification(self):
+        class FieldContainer(document.BaseDocument):
+            field_boolean = fields.BooleanField('b', null=True)
+
+        model = FieldContainer()
+        json_data = model.to_json()
+        self.assertIsInstance(json_data, dict)
+        m2 = FieldContainer.from_json(json_data)
+
+        self.assertIsNone(m2.field_boolean)
+
+    def test_non_nullable_jsonification(self):
+        class FieldContainer(document.BaseDocument):
+            field_boolean = fields.BooleanField('b', null=False)
+
+        model = FieldContainer()
+        json_data = model.to_json()
+        self.assertIsInstance(json_data, dict)
+        m2 = FieldContainer.from_json(json_data)
+
+        self.assertIsNone(m2.field_boolean)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -4,6 +4,7 @@ import unittest
 from datetime import datetime, timedelta
 
 from odm import document, fields
+from odm.errors import ValidationError
 from tests.test_document_operations import SimpleContainer
 
 
@@ -18,6 +19,34 @@ class TestDocument(unittest.TestCase):
 
     def tearDown(self):
         del self.model
+
+    def test_nullable_nested_docs(self):
+        class FieldContainer(document.BaseDocument):
+            field_nested_nullable = fields.NestedDocumentField('nested', SimpleContainer, null=True)
+            field_string = fields.StringField('s', null=False)
+
+        model = FieldContainer()
+        model.field_string = 'first-level string field'
+
+        try:
+            model.validate()
+            self.assertTrue(True, 'Validation should succeed')
+        except ValidationError:
+            self.assertTrue(False, 'ValidationError should not have been thrown')
+
+    def test_non_nullable_nested_docs(self):
+        class FieldContainer(document.BaseDocument):
+            field_nested_non_null = fields.NestedDocumentField('nested', SimpleContainer, null=False)
+            field_string = fields.StringField('s', null=False)
+
+        model = FieldContainer()
+        model.field_string = 'first-level string field'
+
+        try:
+            model.validate()
+            self.assertTrue(False, 'ValidationError should have been thrown')
+        except ValidationError:
+            self.assertTrue(True, 'ValidationError was expected and caught')
 
     def test_getter_setter(self):
         now = datetime.now()
