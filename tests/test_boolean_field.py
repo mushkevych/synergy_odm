@@ -18,11 +18,13 @@ class TestDocument(unittest.TestCase):
             'True': True,
             'tRue': True,
             'true': True,
+            True: True,
             'no': False,
             0: False,
             '0': False,
             'False': False,
             'false': False,
+            False: False,
         }
 
         model = FieldContainer()
@@ -51,17 +53,9 @@ class TestDocument(unittest.TestCase):
         for value in fixtures:
             try:
                 model.field_boolean = value
-                self.assertEqual(model.field_boolean, value)
-
-                model.validate()
-                self.assertTrue(False, 'ValidationError should have been thrown for value {0}'
-                                .format(value))
-            except ValidationError:
-                self.assertTrue(True, 'ValidationError was not expected but caught for value {0}'
-                                .format(value))
+                self.assertTrue(False, 'ValidationError should have been thrown for value {0}'.format(value))
             except ValueError:
-                self.assertTrue(False, 'ValueError was not expected but caught for value {0}'
-                                .format(value))
+                self.assertTrue(True, 'ValueError was expected and caught for value {0}'.format(value))
 
     def test_nullable(self):
         class FieldContainer(document.BaseDocument):

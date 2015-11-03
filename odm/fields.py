@@ -294,6 +294,10 @@ class DecimalField(BaseField):
 
         super(DecimalField, self).__init__(field_name, **kwargs)
 
+    def __set__(self, instance, value):
+        value = self.from_json(value)
+        super(DecimalField, self).__set__(instance, value)
+
     def from_json(self, value):
         if value is None:
             # NoneType values are not jsonified by BaseDocument
@@ -339,11 +343,13 @@ class BooleanField(BaseField):
         value = self.from_json(value)
         super(BooleanField, self).__set__(instance, value)
 
-    @classmethod
-    def parse(cls, value):
-        if not value:
-            return False
+    def from_json(self, value):
+        if value is None:
+            # NoneType values are not jsonified by BaseDocument
+            return value
 
+        if isinstance(value, bool):
+            return value
         if not isinstance(value, str_types):
             # case numbers if needed to the string
             value = str(value)
@@ -356,20 +362,10 @@ class BooleanField(BaseField):
         else:
             raise ValueError('Could not parse {0} into a bool'.format(value))
 
-    def from_json(self, value):
-        if value is None:
-            # NoneType values are not jsonified by BaseDocument
-            return value
-
-        try:
-            value = BooleanField.parse(value)
-        except ValueError:
-            pass
-        return value
-
     def validate(self, value):
         if not isinstance(value, bool):
-            self.raise_error('BooleanField only accepts boolean values')
+            self.raise_error('Only boolean type may be used in the BooleanField vs provided {0}'
+                             .format(type(value).__name__))
 
 
 class DateTimeField(BaseField):
