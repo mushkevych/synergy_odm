@@ -11,7 +11,7 @@ class SimpleContainer(document.BaseDocument):
     field_integer = fields.IntegerField('i')
     field_boolean = fields.BooleanField('b')
     field_datetime = fields.DateTimeField('dt')
-    field_decimal = fields.DecimalField('d')
+    field_decimal = fields.DecimalField('d', precision=3)
 
 
 class TestDocument(unittest.TestCase):

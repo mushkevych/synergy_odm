@@ -241,6 +241,8 @@ class IntegerField(BaseField):
             # NoneType values are not jsonified by BaseDocument
             return value
 
+        if isinstance(value, int):
+            return value
         try:
             value = int(value)
         except ValueError:
@@ -287,12 +289,19 @@ class DecimalField(BaseField):
             Defaults to: ``decimal.ROUND_HALF_UP``
 
         """
-        self.min_value, self.max_value = min_value, max_value
         self.force_string = force_string
         self.precision = precision
         self.rounding = rounding
+        self.min_value = self.from_json(min_value)
+        self.max_value = self.from_json(max_value)
 
         super(DecimalField, self).__init__(field_name, **kwargs)
+
+    def __get__(self, instance, owner):
+        value = super(DecimalField, self).__get__(instance, owner)
+        if value is self:
+            return value
+        return self.to_json(value)
 
     def __set__(self, instance, value):
         value = self.from_json(value)
@@ -303,6 +312,8 @@ class DecimalField(BaseField):
             # NoneType values are not jsonified by BaseDocument
             return value
 
+        if isinstance(value, decimal.Decimal):
+            return value
         try:
             value = decimal.Decimal(str(value))
         except decimal.InvalidOperation:
@@ -316,7 +327,8 @@ class DecimalField(BaseField):
 
         if self.force_string:
             return txt_type(value)
-        return float(self.from_json(value))
+        else:
+            return float(self.from_json(value))
 
     def validate(self, value):
         if not isinstance(value, decimal.Decimal):
@@ -333,7 +345,10 @@ class DecimalField(BaseField):
         if self.max_value is not None and value > self.max_value:
             self.raise_error('DecimalField value {0} is larger than max value {1}'.format(value, self.max_value))
 
-        super(DecimalField, self).validate(value)
+        # super.validate() checks if the value is among the list of allowed choices
+        # most likely, it will be the list of floats and integers
+        # as the Decimal does not support automatic comparison with the float, we will cast it
+        super(DecimalField, self).validate(float(value))
 
 
 class BooleanField(BaseField):

@@ -66,7 +66,7 @@ class TestDocument(unittest.TestCase):
         except ValidationError:
             self.assertTrue(True, 'ValidationError was expected and caught')
 
-    def test_rounding(self):
+    def test_precision(self):
         class FieldContainer(document.BaseDocument):
             field_decimal = fields.DecimalField('d', null=False, precision=1)
 
@@ -81,6 +81,39 @@ class TestDocument(unittest.TestCase):
         for key, value in fixtures.items():
             model.field_decimal = key
             self.assertEqual(model.field_decimal, value)
+
+    def test_force_string(self):
+        class FieldContainer(document.BaseDocument):
+            field_decimal = fields.DecimalField('d', null=False, precision=5, force_string=True)
+
+        fixtures = {
+            '1': '1.00000',
+            1: '1.00000',
+            150.001: '150.00100',
+            '7654321.1234567': '7654321.12346',
+        }
+
+        model = FieldContainer()
+        for key, value in fixtures.items():
+            model.field_decimal = key
+            self.assertEqual(model.field_decimal, value)
+
+    def test_force_string_choices(self):
+        class FieldContainer(document.BaseDocument):
+            field_decimal = fields.DecimalField('s', choices=[123.45, 456.78, 987], force_string=True)
+
+        model = FieldContainer()
+        model.field_decimal = '123.45'
+        self.assertEqual(model.field_decimal, '123.45')
+
+        model.field_decimal = 987
+        self.assertEqual(model.field_decimal, '987.00')
+
+        try:
+            model.field_decimal = '1122'
+            self.assertTrue(False, 'ValidationError should have been thrown')
+        except ValidationError:
+            self.assertTrue(True, 'ValidationError was expected and caught')
 
     def test_nullable_non_default(self):
         class FieldContainer(document.BaseDocument):
