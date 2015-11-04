@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name='synergy_odm',
-      version='0.8',
+      version='0.9',
       description='Synergy Object-Document Mapper',
       author='Bohdan Mushkevych',
       author_email='mushkevych@gmail.com',
