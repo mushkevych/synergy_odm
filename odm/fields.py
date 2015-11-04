@@ -354,6 +354,11 @@ class DecimalField(BaseField):
 class BooleanField(BaseField):
     """A boolean field type. """
 
+    def __init__(self, field_name, true_values=None, false_values=None, **kwargs):
+        self.true_values = true_values if true_values else ['true', 'yes', '1']
+        self.false_values = false_values if false_values else ['false', 'no', '0']
+        super(BooleanField, self).__init__(field_name, **kwargs)
+
     def __set__(self, instance, value):
         value = self.from_json(value)
         super(BooleanField, self).__set__(instance, value)
@@ -370,9 +375,9 @@ class BooleanField(BaseField):
             value = str(value)
         value = value.lower().strip()
 
-        if value in ['true', 'yes', '1']:
+        if value in self.true_values:
             return True
-        elif value in ['false', 'no', '0']:
+        elif value in self.false_values:
             return False
         else:
             raise ValueError('Could not parse {0} into a bool'.format(value))

@@ -57,6 +57,32 @@ class TestDocument(unittest.TestCase):
             except ValueError:
                 self.assertTrue(True, 'ValueError was expected and caught for value {0}'.format(value))
 
+    def test_custom_true_false(self):
+        class FieldContainer(document.BaseDocument):
+            field_boolean = fields.BooleanField('b', true_values=['5', '6', 'ya'], false_values=['2', 'n/a'])
+
+        fixtures = {
+            True: True,
+            '5': True,
+            6: True,
+            'Ya': True,
+            'N/A': False,
+            2: False,
+            False: False
+        }
+
+        model = FieldContainer()
+        for key, value in fixtures.items():
+            try:
+                model.field_boolean = key
+                self.assertEqual(model.field_boolean, value, 'Pair {0}:{1} does not match'.format(key, value))
+            except ValidationError:
+                self.assertTrue(False, 'ValidationError was not expected but caught for pair {0}:{1}'
+                                       .format(key, value))
+            except ValueError:
+                self.assertTrue(False, 'ValueError was not expected but caught for pair {0}:{1}'
+                                       .format(key, value))
+
     def test_nullable(self):
         class FieldContainer(document.BaseDocument):
             field_boolean = fields.BooleanField('b', null=True)
