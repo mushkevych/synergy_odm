@@ -10,9 +10,22 @@ DEFAULT_VALUE = 'default value'
 
 
 class TestDocument(unittest.TestCase):
+    def test_field_autonaming(self):
+        class FieldContainer(document.BaseDocument):
+            field_string = fields.StringField(null=False)
+
+        value = 'abcdefghijklmnopqrstuvwxyz'
+        model = FieldContainer()
+        model.field_string = value
+
+        self.assertEqual(FieldContainer.field_string.field_name, 'field_string')
+        self.assertIn('field_string', model.to_json())
+        self.assertEqual(model.to_json()['field_string'], value)
+        self.assertEqual(model.field_string, value)
+
     def test_valid_inputs(self):
         class FieldContainer(document.BaseDocument):
-            field_string = fields.StringField('s', null=False)
+            field_string = fields.StringField(field_name='s', null=False)
 
         fixtures = {
             '1': '1',
@@ -35,7 +48,7 @@ class TestDocument(unittest.TestCase):
         max_length = 10
 
         class FieldContainer(document.BaseDocument):
-            field_string = fields.StringField('s', min_length=min_length, max_length=max_length)
+            field_string = fields.StringField(field_name='s', min_length=min_length, max_length=max_length)
 
         valid_min = 'a' * min_length
         valid_middle = 'b' * int((min_length + max_length) / 2)
@@ -57,7 +70,7 @@ class TestDocument(unittest.TestCase):
 
     def test_choices(self):
         class FieldContainer(document.BaseDocument):
-            field_string = fields.StringField('s', choices=['111aaa', '222bbb', '333ccc'])
+            field_string = fields.StringField(field_name='s', choices=['111aaa', '222bbb', '333ccc'])
 
         model = FieldContainer()
         model.field_string = '111aaa'
@@ -71,7 +84,7 @@ class TestDocument(unittest.TestCase):
 
     def test_nullable_non_default(self):
         class FieldContainer(document.BaseDocument):
-            field_string = fields.StringField('s', null=True)
+            field_string = fields.StringField(field_name='s', null=True)
 
         model = FieldContainer()
 
@@ -86,7 +99,7 @@ class TestDocument(unittest.TestCase):
 
     def test_non_nullable_non_default(self):
         class FieldContainer(document.BaseDocument):
-            field_string = fields.StringField('s', null=False)
+            field_string = fields.StringField(field_name='s', null=False)
 
         model = FieldContainer()
         try:
@@ -106,8 +119,8 @@ class TestDocument(unittest.TestCase):
 
     def test_non_nullable_default(self):
         class FieldContainer(document.BaseDocument):
-            field_string = fields.StringField('s', null=False, default=DEFAULT_VALUE)
-            field_string_empty = fields.StringField('empty', null=False, default='')
+            field_string = fields.StringField(field_name='s', null=False, default=DEFAULT_VALUE)
+            field_string_empty = fields.StringField(field_name='empty', null=False, default='')
 
         model = FieldContainer()
         self.assertEqual(model.field_string, DEFAULT_VALUE)
@@ -115,7 +128,7 @@ class TestDocument(unittest.TestCase):
 
     def test_nullable_default(self):
         class FieldContainer(document.BaseDocument):
-            field_string = fields.StringField('s', null=True, default=DEFAULT_VALUE)
+            field_string = fields.StringField(field_name='s', null=True, default=DEFAULT_VALUE)
 
         model = FieldContainer()
         self.assertIsNone(model.field_string)
@@ -125,7 +138,7 @@ class TestDocument(unittest.TestCase):
 
     def test_nullable_non_default_jsonification(self):
         class FieldContainer(document.BaseDocument):
-            field_string = fields.StringField('s', null=True)
+            field_string = fields.StringField(field_name='s', null=True)
 
         model = FieldContainer()
         json_data = model.to_json()
@@ -136,7 +149,7 @@ class TestDocument(unittest.TestCase):
 
     def test_non_nullable_non_default_jsonification(self):
         class FieldContainer(document.BaseDocument):
-            field_string = fields.StringField('s', null=False)
+            field_string = fields.StringField(field_name='s', null=False)
 
         model = FieldContainer()
         json_data = model.to_json()
@@ -147,7 +160,7 @@ class TestDocument(unittest.TestCase):
 
     def test_non_nullable_default_jsonification(self):
         class FieldContainer(document.BaseDocument):
-            field_string = fields.StringField('s', null=False, default=DEFAULT_VALUE)
+            field_string = fields.StringField(field_name='s', null=False, default=DEFAULT_VALUE)
 
         model = FieldContainer()
         json_data = model.to_json()
@@ -158,7 +171,7 @@ class TestDocument(unittest.TestCase):
 
     def test_nullable_default_jsonification(self):
         class FieldContainer(document.BaseDocument):
-            field_string = fields.StringField('s', null=True, default=DEFAULT_VALUE)
+            field_string = fields.StringField(field_name='s', null=True, default=DEFAULT_VALUE)
 
         model = FieldContainer()
         json_data = model.to_json()

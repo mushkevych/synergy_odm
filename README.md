@@ -9,16 +9,16 @@ Object Document Mapping for convenient python-to-json and json-to-python convers
 Usage example:
 
     class SimpleContainer(BaseDocument):
-        field_string = StringField('s')
-        field_integer = IntegerField('i')
-        field_boolean = BooleanField('b')
-        field_datetime = DateTimeField('dt')
-        field_decimal = DecimalField('d')
+        field_string = StringField()
+        field_integer = IntegerField()
+        field_boolean = BooleanField()
+        field_datetime = DateTimeField()
+        field_decimal = DecimalField()
     
     class HostContainer(BaseDocument):
-        nested_document = NestedDocumentField('nested', SimpleContainer)
-        field_list = ListField('l_f')
-        field_dict = DictField('l_d')
+        nested_document = NestedDocumentField(SimpleContainer)
+        field_list = ListField()
+        field_dict = DictField()
 
     ... somewhere in the code ...
         model = HostContainer()
@@ -69,4 +69,4 @@ To run all tests from the *tests* directory, run following from the command line
 
 Dependencies
 ---------
-1. python 2.7+ / 3.4+  
+1. python 3.7+  

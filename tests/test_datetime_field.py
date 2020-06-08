@@ -5,14 +5,13 @@ import unittest
 import datetime
 
 from odm.errors import ValidationError
-from odm.pyversion import str_types
 from odm import document, fields
 
 
 class TestDocument(unittest.TestCase):
     def test_date_formats(self):
         class FieldContainer(document.BaseDocument):
-            field_datetime = fields.DateTimeField('dt', null=False)
+            field_datetime = fields.DateTimeField(null=False)
 
         utc_timestamp = time.time()
         dt_valid = datetime.datetime(year=2015, month=1, day=1, hour=23, minute=59, second=59)
@@ -41,25 +40,25 @@ class TestDocument(unittest.TestCase):
 
     def test_jsonification(self):
         class FieldContainer(document.BaseDocument):
-            field_datetime = fields.DateTimeField('dt', null=False)
+            field_datetime = fields.DateTimeField(null=False)
 
         dt_valid = datetime.datetime(year=2015, month=1, day=1, hour=23, minute=59, second=59)
         model = FieldContainer(field_datetime=dt_valid)
 
         json_data = model.to_json()
         self.assertIsInstance(json_data, dict)
-        self.assertIsInstance(json_data['dt'], str_types)
+        self.assertIsInstance(json_data['field_datetime'], (bytes, str))
         m2 = FieldContainer.from_json(json_data)
         self.assertEqual(model.field_datetime, m2.field_datetime)
 
-        json_data['dt'] = dt_valid
-        self.assertIsInstance(json_data['dt'], datetime.datetime)
+        json_data['field_datetime'] = dt_valid
+        self.assertIsInstance(json_data['field_datetime'], datetime.datetime)
         m3 = FieldContainer.from_json(json_data)
         self.assertEqual(model.field_datetime, m3.field_datetime)
 
     def test_nullable(self):
         class FieldContainer(document.BaseDocument):
-            field_datetime = fields.DateTimeField('dt', null=True)
+            field_datetime = fields.DateTimeField(null=True)
 
         model = FieldContainer()
 
@@ -74,7 +73,7 @@ class TestDocument(unittest.TestCase):
 
     def test_non_nullable(self):
         class FieldContainer(document.BaseDocument):
-            field_datetime = fields.DateTimeField('dt', null=False)
+            field_datetime = fields.DateTimeField(null=False)
 
         model = FieldContainer()
         try:
@@ -95,7 +94,7 @@ class TestDocument(unittest.TestCase):
 
     def test_nullable_jsonification(self):
         class FieldContainer(document.BaseDocument):
-            field_datetime = fields.DateTimeField('dt', null=True)
+            field_datetime = fields.DateTimeField(null=True)
 
         model = FieldContainer()
         json_data = model.to_json()
@@ -106,7 +105,7 @@ class TestDocument(unittest.TestCase):
 
     def test_non_nullable_jsonification(self):
         class FieldContainer(document.BaseDocument):
-            field_datetime = fields.DateTimeField('dt', null=False)
+            field_datetime = fields.DateTimeField(null=False)
 
         model = FieldContainer()
         json_data = model.to_json()

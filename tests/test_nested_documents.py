@@ -9,8 +9,8 @@ from tests.test_document_operations import SimpleContainer
 
 
 class NestedDocuments(document.BaseDocument):
-    field_nested = fields.NestedDocumentField('nested', SimpleContainer)
-    field_integer = fields.IntegerField('i')
+    field_nested = fields.NestedDocumentField(SimpleContainer)
+    field_integer = fields.IntegerField()
 
 
 class TestDocument(unittest.TestCase):
@@ -22,8 +22,8 @@ class TestDocument(unittest.TestCase):
 
     def test_nullable_nested_docs(self):
         class FieldContainer(document.BaseDocument):
-            field_nested_nullable = fields.NestedDocumentField('nested', SimpleContainer, null=True)
-            field_string = fields.StringField('s', null=False)
+            field_nested_nullable = fields.NestedDocumentField(SimpleContainer, field_name='nested', null=True)
+            field_string = fields.StringField(null=False)
 
         model = FieldContainer()
         model.field_string = 'first-level string field'
@@ -36,8 +36,8 @@ class TestDocument(unittest.TestCase):
 
     def test_non_nullable_nested_docs(self):
         class FieldContainer(document.BaseDocument):
-            field_nested_non_null = fields.NestedDocumentField('nested', SimpleContainer, null=False)
-            field_string = fields.StringField('s', null=False)
+            field_nested_non_null = fields.NestedDocumentField(SimpleContainer, field_name='nested', null=False)
+            field_string = fields.StringField(field_name='s', null=False)
 
         model = FieldContainer()
         model.field_string = 'first-level string field'

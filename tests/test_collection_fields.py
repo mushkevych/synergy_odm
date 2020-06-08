@@ -6,8 +6,8 @@ from odm import document, fields
 
 
 class EmbeddedCollections(document.BaseDocument):
-    field_list = fields.ListField('s')
-    field_dict = fields.DictField('i')
+    field_list = fields.ListField()
+    field_dict = fields.DictField()
     field_id = fields.ObjectIdField(field_name='_id', null=True)
 
 
@@ -49,8 +49,8 @@ class TestDocument(unittest.TestCase):
 
     def test_nullable_jsonification(self):
         class FieldContainer(document.BaseDocument):
-            field_list = fields.ListField('s', null=True)
-            field_dict = fields.DictField('i', null=True)
+            field_list = fields.ListField(null=True)
+            field_dict = fields.DictField(null=True)
 
         model = FieldContainer()
         json_data = model.to_json()

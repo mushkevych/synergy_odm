@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name='synergy_odm',
-      version='0.9',
+      version='0.10',
       description='Synergy Object-Document Mapper',
       author='Bohdan Mushkevych',
       author_email='mushkevych@gmail.com',
@@ -15,8 +15,8 @@ setup(name='synergy_odm',
           'Intended Audience :: Developers',
           'License :: OSI Approved :: BSD License',
           'Operating System :: OS Independent',
-          'Programming Language :: Python :: 2.7',
-          'Programming Language :: Python :: 3.4',
+          'Programming Language :: Python :: 3.7',
+          'Programming Language :: Python :: 3.8',
           'Topic :: Software Development :: Libraries',
       ],
       requires=[]

@@ -12,7 +12,7 @@ DEFAULT_VALUE = 987.65
 class TestDocument(unittest.TestCase):
     def test_valid_inputs(self):
         class FieldContainer(document.BaseDocument):
-            field_decimal = fields.DecimalField('d', null=False, precision=7)
+            field_decimal = fields.DecimalField(null=False, precision=7)
 
         fixtures = {
             '1': 1,
@@ -31,7 +31,7 @@ class TestDocument(unittest.TestCase):
         max_value = 9876543210.97
 
         class FieldContainer(document.BaseDocument):
-            field_decimal = fields.DecimalField('d', min_value=min_value, max_value=max_value)
+            field_decimal = fields.DecimalField(min_value=min_value, max_value=max_value)
 
         valid_middle = (min_value + max_value) / 2.0
         invalid_min = min_value - 0.01
@@ -51,7 +51,7 @@ class TestDocument(unittest.TestCase):
 
     def test_choices(self):
         class FieldContainer(document.BaseDocument):
-            field_decimal = fields.DecimalField('s', choices=[123.45, 456.78, 987])
+            field_decimal = fields.DecimalField(choices=[123.45, 456.78, 987])
 
         model = FieldContainer()
         model.field_decimal = '123.45'
@@ -68,7 +68,7 @@ class TestDocument(unittest.TestCase):
 
     def test_precision(self):
         class FieldContainer(document.BaseDocument):
-            field_decimal = fields.DecimalField('d', null=False, precision=1)
+            field_decimal = fields.DecimalField(null=False, precision=1)
 
         fixtures = {
             '1': 1,
@@ -84,7 +84,7 @@ class TestDocument(unittest.TestCase):
 
     def test_force_string(self):
         class FieldContainer(document.BaseDocument):
-            field_decimal = fields.DecimalField('d', null=False, precision=5, force_string=True)
+            field_decimal = fields.DecimalField(null=False, precision=5, force_string=True)
 
         fixtures = {
             '1': '1.00000',
@@ -100,7 +100,7 @@ class TestDocument(unittest.TestCase):
 
     def test_force_string_choices(self):
         class FieldContainer(document.BaseDocument):
-            field_decimal = fields.DecimalField('s', choices=[123.45, 456.78, 987], force_string=True)
+            field_decimal = fields.DecimalField(choices=[123.45, 456.78, 987], force_string=True)
 
         model = FieldContainer()
         model.field_decimal = '123.45'
@@ -117,7 +117,7 @@ class TestDocument(unittest.TestCase):
 
     def test_nullable_non_default(self):
         class FieldContainer(document.BaseDocument):
-            field_decimal = fields.DecimalField('d', null=True)
+            field_decimal = fields.DecimalField(null=True)
 
         model = FieldContainer()
 
@@ -132,7 +132,7 @@ class TestDocument(unittest.TestCase):
 
     def test_non_nullable_non_default(self):
         class FieldContainer(document.BaseDocument):
-            field_decimal = fields.DecimalField('d', null=False)
+            field_decimal = fields.DecimalField(null=False)
 
         model = FieldContainer()
         try:
@@ -152,14 +152,14 @@ class TestDocument(unittest.TestCase):
 
     def test_non_nullable_default(self):
         class FieldContainer(document.BaseDocument):
-            field_decimal = fields.DecimalField('d', null=False, default=DEFAULT_VALUE)
+            field_decimal = fields.DecimalField(null=False, default=DEFAULT_VALUE)
 
         model = FieldContainer()
         self.assertEqual(model.field_decimal, DEFAULT_VALUE)
 
     def test_nullable_default(self):
         class FieldContainer(document.BaseDocument):
-            field_decimal = fields.DecimalField('d', null=True, default=DEFAULT_VALUE)
+            field_decimal = fields.DecimalField(null=True, default=DEFAULT_VALUE)
 
         model = FieldContainer()
         self.assertIsNone(model.field_decimal)
@@ -169,7 +169,7 @@ class TestDocument(unittest.TestCase):
 
     def test_nullable_non_default_jsonification(self):
         class FieldContainer(document.BaseDocument):
-            field_decimal = fields.DecimalField('d', null=True)
+            field_decimal = fields.DecimalField(null=True)
 
         model = FieldContainer()
         json_data = model.to_json()
@@ -180,7 +180,7 @@ class TestDocument(unittest.TestCase):
 
     def test_non_nullable_non_default_jsonification(self):
         class FieldContainer(document.BaseDocument):
-            field_decimal = fields.DecimalField('d', null=False)
+            field_decimal = fields.DecimalField(null=False)
 
         model = FieldContainer()
         json_data = model.to_json()
@@ -191,7 +191,7 @@ class TestDocument(unittest.TestCase):
 
     def test_non_nullable_default_jsonification(self):
         class FieldContainer(document.BaseDocument):
-            field_decimal = fields.DecimalField('d', null=False, default=DEFAULT_VALUE)
+            field_decimal = fields.DecimalField(null=False, default=DEFAULT_VALUE)
 
         model = FieldContainer()
         json_data = model.to_json()
@@ -202,7 +202,7 @@ class TestDocument(unittest.TestCase):
 
     def test_nullable_default_jsonification(self):
         class FieldContainer(document.BaseDocument):
-            field_decimal = fields.DecimalField('d', null=True, default=DEFAULT_VALUE)
+            field_decimal = fields.DecimalField(null=True, default=DEFAULT_VALUE)
 
         model = FieldContainer()
         json_data = model.to_json()

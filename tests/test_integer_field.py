@@ -9,7 +9,7 @@ from odm import document, fields
 class TestDocument(unittest.TestCase):
     def test_choices(self):
         class FieldContainer(document.BaseDocument):
-            field_integer = fields.IntegerField('i', choices=[1, 2, 3])
+            field_integer = fields.IntegerField(choices=[1, 2, 3])
 
         model = FieldContainer()
         model.field_integer = 1
@@ -26,7 +26,7 @@ class TestDocument(unittest.TestCase):
         max_value = 9876543210
 
         class FieldContainer(document.BaseDocument):
-            field_integer = fields.IntegerField('i', min_value=min_value, max_value=max_value)
+            field_integer = fields.IntegerField(min_value=min_value, max_value=max_value)
 
         valid_middle = int((min_value + max_value) / 2)
         invalid_min = min_value - 1
@@ -46,7 +46,7 @@ class TestDocument(unittest.TestCase):
 
     def test_nullable_non_default_jsonification(self):
         class FieldContainer(document.BaseDocument):
-            field_integer = fields.IntegerField('i', null=True)
+            field_integer = fields.IntegerField(null=True)
 
         model = FieldContainer()
         json_data = model.to_json()
@@ -57,7 +57,7 @@ class TestDocument(unittest.TestCase):
 
     def test_non_nullable_non_default_jsonification(self):
         class FieldContainer(document.BaseDocument):
-            field_integer = fields.IntegerField('i', null=False)
+            field_integer = fields.IntegerField(null=False)
 
         model = FieldContainer()
         json_data = model.to_json()
@@ -68,7 +68,7 @@ class TestDocument(unittest.TestCase):
 
     def test_non_nullable_default_jsonification(self):
         class FieldContainer(document.BaseDocument):
-            field_integer = fields.IntegerField('i', null=False, default=123)
+            field_integer = fields.IntegerField(null=False, default=123)
 
         model = FieldContainer()
         json_data = model.to_json()
@@ -79,7 +79,7 @@ class TestDocument(unittest.TestCase):
 
     def test_nullable_default_jsonification(self):
         class FieldContainer(document.BaseDocument):
-            field_integer = fields.IntegerField('i', null=True, default=123)
+            field_integer = fields.IntegerField(null=True, default=123)
 
         model = FieldContainer()
         json_data = model.to_json()
@@ -90,7 +90,7 @@ class TestDocument(unittest.TestCase):
 
     def test_nullable_non_default_field(self):
         class FieldContainer(document.BaseDocument):
-            field_integer = fields.IntegerField('i', null=True)
+            field_integer = fields.IntegerField(null=True)
 
         model = FieldContainer()
         self.assertIsNone(model.field_integer)
@@ -106,7 +106,7 @@ class TestDocument(unittest.TestCase):
 
     def test_nullable_default_field(self):
         class FieldContainer(document.BaseDocument):
-            field_integer = fields.IntegerField('i', null=True, default=999)
+            field_integer = fields.IntegerField(null=True, default=999)
 
         model = FieldContainer()
         self.assertIsNone(model.field_integer)
@@ -122,7 +122,7 @@ class TestDocument(unittest.TestCase):
 
     def test_non_nullable_non_default_field(self):
         class FieldContainer(document.BaseDocument):
-            field_integer = fields.IntegerField('i', null=False)
+            field_integer = fields.IntegerField(null=False)
 
         model = FieldContainer()
         self.assertIsNone(model.field_integer)
@@ -138,7 +138,7 @@ class TestDocument(unittest.TestCase):
 
     def test_non_nullable_default_field(self):
         class FieldContainer(document.BaseDocument):
-            field_integer = fields.IntegerField('i', null=False, default=100)
+            field_integer = fields.IntegerField(null=False, default=100)
 
         model = FieldContainer()
         self.assertEqual(model.field_integer, 100)
@@ -154,7 +154,7 @@ class TestDocument(unittest.TestCase):
 
     def test_non_nullable_non_default_assignment(self):
         class FieldContainer(document.BaseDocument):
-            field_integer = fields.IntegerField('i', null=False)
+            field_integer = fields.IntegerField(null=False)
 
         model = FieldContainer()
         self.assertIsNone(model.field_integer)
@@ -170,7 +170,7 @@ class TestDocument(unittest.TestCase):
 
     def test_non_nullable_default_assignment(self):
         class FieldContainer(document.BaseDocument):
-            field_integer = fields.IntegerField('i', null=False, default=987654321)
+            field_integer = fields.IntegerField(null=False, default=987654321)
 
         model = FieldContainer()
         self.assertEqual(model.field_integer, 987654321)
@@ -183,7 +183,7 @@ class TestDocument(unittest.TestCase):
 
     def test_nullable_non_default_assignment(self):
         class FieldContainer(document.BaseDocument):
-            field_integer = fields.IntegerField('i', null=True)
+            field_integer = fields.IntegerField(null=True)
 
         model = FieldContainer()
         self.assertIsNone(model.field_integer)
@@ -196,7 +196,7 @@ class TestDocument(unittest.TestCase):
 
     def test_nullable_default_assignment(self):
         class FieldContainer(document.BaseDocument):
-            field_integer = fields.IntegerField('i', null=True, default=987654321)
+            field_integer = fields.IntegerField(null=True, default=987654321)
 
         model = FieldContainer()
         self.assertIsNone(model.field_integer)

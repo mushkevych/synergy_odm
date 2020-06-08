@@ -9,7 +9,7 @@ from odm import document, fields
 class TestDocument(unittest.TestCase):
     def test_valid_formats(self):
         class FieldContainer(document.BaseDocument):
-            field_boolean = fields.BooleanField('b', null=False)
+            field_boolean = fields.BooleanField(null=False)
 
         fixtures = {
             '1': True,
@@ -34,18 +34,15 @@ class TestDocument(unittest.TestCase):
                 self.assertEqual(model.field_boolean, value)
 
                 model.validate()
-                self.assertTrue(True, 'ValidationError should not have been thrown for pair {0}:{1}'
-                                .format(key, value))
+                self.assertTrue(True, f'ValidationError should not have been thrown for pair {key}:{value}')
             except ValidationError:
-                self.assertTrue(False, 'ValidationError was not expected but caught for pair {0}:{1}'
-                                .format(key, value))
+                self.assertTrue(False, f'ValidationError was not expected but caught for pair {key}:{value}')
             except ValueError:
-                self.assertTrue(False, 'ValueError was not expected but caught for pair {0}:{1}'
-                                .format(key, value))
+                self.assertTrue(False, f'ValueError was not expected but caught for pair {key}:{value}')
 
     def test_invalid_formats(self):
         class FieldContainer(document.BaseDocument):
-            field_boolean = fields.BooleanField('b', null=False)
+            field_boolean = fields.BooleanField(null=False)
 
         fixtures = [2, 'ye', 'Tru', '3']
 
@@ -53,13 +50,13 @@ class TestDocument(unittest.TestCase):
         for value in fixtures:
             try:
                 model.field_boolean = value
-                self.assertTrue(False, 'ValidationError should have been thrown for value {0}'.format(value))
+                self.assertTrue(False, f'ValidationError should have been thrown for value {value}')
             except ValueError:
-                self.assertTrue(True, 'ValueError was expected and caught for value {0}'.format(value))
+                self.assertTrue(True, f'ValueError was expected and caught for value {value}')
 
     def test_custom_true_false(self):
         class FieldContainer(document.BaseDocument):
-            field_boolean = fields.BooleanField('b', true_values=['5', '6', 'ya'], false_values=['2', 'n/a'])
+            field_boolean = fields.BooleanField(true_values=['5', '6', 'ya'], false_values=['2', 'n/a'])
 
         fixtures = {
             True: True,
@@ -75,17 +72,15 @@ class TestDocument(unittest.TestCase):
         for key, value in fixtures.items():
             try:
                 model.field_boolean = key
-                self.assertEqual(model.field_boolean, value, 'Pair {0}:{1} does not match'.format(key, value))
+                self.assertEqual(model.field_boolean, value, f'Pair {key}:{value} does not match')
             except ValidationError:
-                self.assertTrue(False, 'ValidationError was not expected but caught for pair {0}:{1}'
-                                       .format(key, value))
+                self.assertTrue(False, f'ValidationError was not expected but caught for pair {key}:{value}')
             except ValueError:
-                self.assertTrue(False, 'ValueError was not expected but caught for pair {0}:{1}'
-                                       .format(key, value))
+                self.assertTrue(False, f'ValueError was not expected but caught for pair {key}:{value}')
 
     def test_nullable(self):
         class FieldContainer(document.BaseDocument):
-            field_boolean = fields.BooleanField('b', null=True)
+            field_boolean = fields.BooleanField(null=True)
 
         model = FieldContainer()
 
@@ -100,7 +95,7 @@ class TestDocument(unittest.TestCase):
 
     def test_non_nullable(self):
         class FieldContainer(document.BaseDocument):
-            field_boolean = fields.BooleanField('b', null=False)
+            field_boolean = fields.BooleanField(null=False)
 
         model = FieldContainer()
         try:
@@ -120,7 +115,7 @@ class TestDocument(unittest.TestCase):
 
     def test_nullable_jsonification(self):
         class FieldContainer(document.BaseDocument):
-            field_boolean = fields.BooleanField('b', null=True)
+            field_boolean = fields.BooleanField(field_name='b', null=True)
 
         model = FieldContainer()
         json_data = model.to_json()
@@ -131,7 +126,7 @@ class TestDocument(unittest.TestCase):
 
     def test_non_nullable_jsonification(self):
         class FieldContainer(document.BaseDocument):
-            field_boolean = fields.BooleanField('b', null=False)
+            field_boolean = fields.BooleanField(field_name='b', null=False)
 
         model = FieldContainer()
         json_data = model.to_json()

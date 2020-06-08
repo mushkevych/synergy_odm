@@ -2,7 +2,6 @@ __author__ = 'Bohdan Mushkevych'
 
 from odm.errors import FieldDoesNotExist, ValidationError
 from odm.fields import NestedDocumentField, BaseField
-from odm.pyversion import PY3, txt_type
 
 
 class BaseDocument(object):
@@ -16,8 +15,7 @@ class BaseDocument(object):
         self._data = dict()
         for field_name in values.keys():
             if field_name not in self._attributes:
-                msg = "The attribute '{0}' does not exist on the document '{1}'".\
-                    format(field_name, self.__class__.__name__)
+                msg = f"The attribute '{field_name}' is not present in document type '{self.__class__.__name__}'"
                 raise FieldDoesNotExist(msg)
 
             field = self._attributes[field_name]
@@ -96,15 +94,10 @@ class BaseDocument(object):
         except (UnicodeEncodeError, UnicodeDecodeError):
             u = '[Bad Unicode data]'
         repr_type = str if u is None else type(u)
-        return repr_type('<{0}: {1}>'.format(self.__class__.__name__, u))
+        return repr_type(f'<{self.__class__.__name__}: {u}>')
 
     def __str__(self):
-        if hasattr(self, '__unicode__'):
-            if PY3:
-                return self.__unicode__()
-            else:
-                return unicode(self).encode('utf-8')
-        return txt_type('{0} object'.format(self.__class__.__name__))
+        return f'{self.__class__.__name__} object'
 
     def __eq__(self, other):
         if self is other:
@@ -126,13 +119,31 @@ class BaseDocument(object):
 
     @property
     def key(self):
-        raise NotImplementedError('property key.getter is not implemented in BaseDocument child {0}'
-                                  .format(self.__class__.__name__))
+        if isinstance(self.key_field_names, str):
+            return self[self.key_field_names]
+        elif isinstance(self.key_field_names, (list, tuple)):
+            key_list = list()
+            for field_name in self.key_field_names:
+                key_list.append(self[field_name])
+            return key_list
+        else:
+            raise TypeError('property {0}.key_field_names of type {1} is not of supported types: list, tuple'.
+                            format(self.__class__.__name__, type(self.key_field_names)))
 
     @key.setter
     def key(self, value):
-        raise NotImplementedError('property key.getter is not implemented in BaseDocument child {0}'
-                                  .format(self.__class__.__name__))
+        if isinstance(self.key_field_names, str):
+            self[self.key_field_names] = value
+        elif isinstance(self.key_field_names, (list, tuple)):
+            for field_name in self.key_field_names:
+                self[field_name] = value
+        else:
+            raise TypeError('property {0}.key_field_names of type {1} is not of supported types: list, tuple'.
+                            format(self.__class__.__name__, type(self.key_field_names)))
+
+    @property
+    def key_field_names(self):
+        raise NotImplementedError(f'property {self.__class__.__name__}.key_field_names is not implemented')
 
     @property
     def document(self):
@@ -144,7 +155,7 @@ class BaseDocument(object):
             value = field_obj.__get__(self, self.__class__)
 
             if value is None and field_obj.null is False:
-                raise ValidationError('Non-nullable field {0} is set to None'.format(field_name))
+                raise ValidationError(f'Non-nullable field {field_name} is set to None')
             elif value is None and field_obj.null is True:
                 # no further validations are possible on NoneType field
                 continue
