@@ -9,7 +9,7 @@ from tests.test_document_operations import SimpleContainer
 
 class NestedNullableDocuments(document.BaseDocument):
     field_nested = fields.NestedDocumentField(SimpleContainer, null=True)
-    field_integer = fields.IntegerField(field_name='i')
+    field_integer = fields.IntegerField(name='i')
 
 
 class TestDocument(unittest.TestCase):

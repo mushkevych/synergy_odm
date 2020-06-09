@@ -44,7 +44,7 @@ class BaseDocument(object):
 
     def __getitem__(self, name):
         """ Dictionary-style field getter.
-        :param name: field_name of the field (not the name of the Document's attribute)
+        :param name: name of the field (not the name of the Document's attribute)
         :return: field value if present
         :raise KeyError if the given name is not among known field_names
         """
@@ -55,7 +55,7 @@ class BaseDocument(object):
 
     def __setitem__(self, name, value):
         """ Dictionary-style field setter.
-        :param name: field_name of the field (not the name of the Document's attribute)
+        :param name: name of the field (not the name of the Document's attribute)
         :param value: value to set
         :raise KeyError if the given name is not among known field_names
         """
@@ -66,7 +66,7 @@ class BaseDocument(object):
 
     def __delitem__(self, name):
         """ Dictionary-style field deleter.
-        :param name: field_name of the field (not the name of the Document's attribute)
+        :param name: name of the field (not the name of the Document's attribute)
         :raise KeyError if the given name is not among known field_names
         """
         if name not in self._fields:
@@ -76,7 +76,7 @@ class BaseDocument(object):
 
     def __contains__(self, name):
         """
-        :param name: field_name of the field (not the name of the Document's attribute)
+        :param name: name of the field (not the name of the Document's attribute)
         :return: True if the field is set, False if the field is None or not known
         """
         try:
@@ -119,31 +119,31 @@ class BaseDocument(object):
 
     @property
     def key(self):
-        if isinstance(self.key_field_names, str):
-            return self[self.key_field_names]
-        elif isinstance(self.key_field_names, (list, tuple)):
+        if isinstance(self.key_fields, str):
+            return self[self.key_fields]
+        elif isinstance(self.key_fields, (list, tuple)):
             key_list = list()
-            for field_name in self.key_field_names:
+            for field_name in self.key_fields:
                 key_list.append(self[field_name])
             return key_list
         else:
-            raise TypeError('property {0}.key_field_names of type {1} is not of supported types: list, tuple'.
-                            format(self.__class__.__name__, type(self.key_field_names)))
+            raise TypeError('property {0}.key_fields of type {1} is not of supported types: list, tuple'.
+                            format(self.__class__.__name__, type(self.key_fields)))
 
     @key.setter
     def key(self, value):
-        if isinstance(self.key_field_names, str):
-            self[self.key_field_names] = value
-        elif isinstance(self.key_field_names, (list, tuple)):
-            for field_name in self.key_field_names:
+        if isinstance(self.key_fields, str):
+            self[self.key_fields] = value
+        elif isinstance(self.key_fields, (list, tuple)):
+            for field_name in self.key_fields:
                 self[field_name] = value
         else:
-            raise TypeError('property {0}.key_field_names of type {1} is not of supported types: list, tuple'.
-                            format(self.__class__.__name__, type(self.key_field_names)))
+            raise TypeError('property {0}.key_fields of type {1} is not of supported types: list, tuple'.
+                            format(self.__class__.__name__, type(self.key_fields)))
 
     @property
-    def key_field_names(self):
-        raise NotImplementedError(f'property {self.__class__.__name__}.key_field_names is not implemented')
+    def key_fields(self):
+        raise NotImplementedError(f'property {self.__class__.__name__}.key_fields is not implemented')
 
     @property
     def document(self):
@@ -194,7 +194,7 @@ class BaseDocument(object):
         for field_name in dir(cls):
             field_obj = getattr(cls, field_name)
             if isinstance(field_obj, BaseField):
-                _fields[field_obj.field_name] = field_obj
+                _fields[field_obj.name] = field_obj
             else:
                 continue
         return _fields
@@ -213,7 +213,7 @@ class BaseDocument(object):
     @classmethod
     def _get_ordered_field_names(cls):
         _fields = cls._get_fields()
-        return [f[1].field_name for f in sorted(_fields.items(), key=lambda entry: entry[1].creation_counter)]
+        return [f[1].name for f in sorted(_fields.items(), key=lambda entry: entry[1].creation_counter)]
 
     @classmethod
     def from_json(cls, json_data):

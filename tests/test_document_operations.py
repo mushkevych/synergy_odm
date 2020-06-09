@@ -188,10 +188,10 @@ class TestDocument(unittest.TestCase):
 
     def test_field_order_manualnaming(self):
         class Container(document.BaseDocument):
-            a = fields.StringField(field_name='aaa', null=False)
-            z = fields.StringField(field_name='zzz', null=False)
-            k = fields.StringField(field_name='kkk', null=False)
-            b = fields.StringField(field_name='bbb', null=False)
+            a = fields.StringField(name='aaa', null=False)
+            z = fields.StringField(name='zzz', null=False)
+            k = fields.StringField(name='kkk', null=False)
+            b = fields.StringField(name='bbb', null=False)
 
         self.assertListEqual(Container._get_ordered_field_names(), ['aaa', 'zzz', 'kkk', 'bbb'])
 

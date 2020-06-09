@@ -16,12 +16,11 @@ class BaseField:
     # Each time a Field instance is created the counter should be increased
     creation_counter = 0
 
-    def __init__(self, field_name:str=None, default=None,
-                 choices=None, verbose_name:str=None, null:bool=False):
+    def __init__(self, name:str=None, default=None, choices=None, verbose_name:str=None, null:bool=False):
         """
-        :param field_name: (optional) name of the field in the JSON document
+        :param name: (optional) name of the field in the JSON document
             if not set, variable name will be taken as the name
-            i.e. `a = Field() -> a.field_name == 'a'`
+            i.e. `a = Field() -> a.name == 'a'`
         :param default: (optional) The default value for this field if no value
             has been set (or if the value has been unset).  It can be a
             callable.
@@ -30,7 +29,7 @@ class BaseField:
         :param null: (optional) Is the field value can be null. If no and there is a default value
             then the default value is set
         """
-        self.field_name = field_name
+        self.name = name
         self._default = default
         self.choices = choices
         self.verbose_name = verbose_name
@@ -52,7 +51,7 @@ class BaseField:
         if instance is None:
             # Document class being used rather than a document object. Guessing True
             return True
-        return instance._data.get(self.field_name) is not None
+        return instance._data.get(self.name) is not None
 
     def __get__(self, instance, owner):
         """ Descriptor for retrieving a value from a field in a document. """
@@ -61,7 +60,7 @@ class BaseField:
             return self
 
         # retrieve value from a BaseDocument instance if available
-        value = instance._data.get(self.field_name)
+        value = instance._data.get(self.name)
         if value is not None or self.null:
             return value
 
@@ -69,44 +68,43 @@ class BaseField:
         if self.default is not None:
             value = self.default
             self.validate(value)
-            instance._data[self.field_name] = value
+            instance._data[self.name] = value
         return value
 
     def __set__(self, instance, value):
         """ Descriptor for assigning a value to a field in a document. """
         if value is not None:
             self.validate(value)
-            instance._data[self.field_name] = value
+            instance._data[self.name] = value
         elif self.null:
             # value is None and self.null is True
             # skip validation; force setting value to None
-            instance._data[self.field_name] = value
+            instance._data[self.name] = value
         elif self.default is not None:
             # value is None and self.null is False and self.default is not None
             value = self.default
             self.validate(value)
-            instance._data[self.field_name] = value
+            instance._data[self.name] = value
         else:
             # value is None and self.null is False and self.default is None
             # let the self.validate take care of reporting the exception
             self.validate(value)
-            instance._data[self.field_name] = value
+            instance._data[self.name] = value
 
     def __delete__(self, instance):
-        if self.field_name in instance._data:
-            del instance._data[self.field_name]
+        if self.name in instance._data:
+            del instance._data[self.name]
 
     def __set_name__(self, owner, name):
-        if hasattr(self, 'field_name') and self.field_name is not None:
+        if hasattr(self, 'name') and self.name is not None:
             # field was initialized with a custom name
             pass
         else:
-            self.field_name = name
+            self.name = name
 
-    def raise_error(self, message='', errors=None, field_name=None):
+    def raise_error(self, message='', errors=None, name=None):
         """Raises a ValidationError. """
-        field_name = field_name if field_name else self.field_name
-        raise ValidationError(message, errors=errors, field_name=field_name)
+        raise ValidationError(message, errors=errors, field_name=name if name else self.name)
 
     def from_json(self, value):
         """Convert a JSON-variable to a Python type. """
@@ -138,7 +136,6 @@ class NestedDocumentField(BaseField):
 
     def __init__(self, nested_klass, **kwargs):
         """
-        :param field_name: name of the field in the JSON document
         :param nested_klass: BaseDocument-derived class
         :param kwargs: standard set of arguments from the BaseField
         """

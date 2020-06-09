@@ -22,7 +22,7 @@ class TestDocument(unittest.TestCase):
 
     def test_nullable_nested_docs(self):
         class FieldContainer(document.BaseDocument):
-            field_nested_nullable = fields.NestedDocumentField(SimpleContainer, field_name='nested', null=True)
+            field_nested_nullable = fields.NestedDocumentField(SimpleContainer, name='nested', null=True)
             field_string = fields.StringField(null=False)
 
         model = FieldContainer()
@@ -36,8 +36,8 @@ class TestDocument(unittest.TestCase):
 
     def test_non_nullable_nested_docs(self):
         class FieldContainer(document.BaseDocument):
-            field_nested_non_null = fields.NestedDocumentField(SimpleContainer, field_name='nested', null=False)
-            field_string = fields.StringField(field_name='s', null=False)
+            field_nested_non_null = fields.NestedDocumentField(SimpleContainer, name='nested', null=False)
+            field_string = fields.StringField(name='s', null=False)
 
         model = FieldContainer()
         model.field_string = 'first-level string field'

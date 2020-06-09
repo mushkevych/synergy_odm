@@ -115,7 +115,7 @@ class TestDocument(unittest.TestCase):
 
     def test_nullable_jsonification(self):
         class FieldContainer(document.BaseDocument):
-            field_boolean = fields.BooleanField(field_name='b', null=True)
+            field_boolean = fields.BooleanField(name='b', null=True)
 
         model = FieldContainer()
         json_data = model.to_json()
@@ -126,7 +126,7 @@ class TestDocument(unittest.TestCase):
 
     def test_non_nullable_jsonification(self):
         class FieldContainer(document.BaseDocument):
-            field_boolean = fields.BooleanField(field_name='b', null=False)
+            field_boolean = fields.BooleanField(name='b', null=False)
 
         model = FieldContainer()
         json_data = model.to_json()

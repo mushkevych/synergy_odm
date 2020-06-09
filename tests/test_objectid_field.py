@@ -11,7 +11,7 @@ DEFAULT_VALUE = 'default value'
 class TestDocument(unittest.TestCase):
     def test_valid_inputs(self):
         class FieldContainer(document.BaseDocument):
-            field_oid = fields.ObjectIdField(field_name='oid', null=False)
+            field_oid = fields.ObjectIdField(name='oid', null=False)
 
         fixtures = {
             '1': '1',
