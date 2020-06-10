@@ -135,8 +135,8 @@ class BaseDocument(object):
         if isinstance(self.key_fields, str):
             self[self.key_fields] = value
         elif isinstance(self.key_fields, (list, tuple)):
-            for field_name in self.key_fields:
-                self[field_name] = value
+            for i, field_name in enumerate(self.key_fields):
+                self[field_name] = value[i]
         else:
             raise TypeError('property {0}.key_fields of type {1} is not of supported types: list, tuple'.
                             format(self.__class__.__name__, type(self.key_fields)))
