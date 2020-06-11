@@ -119,31 +119,31 @@ class BaseDocument(object):
 
     @property
     def key(self):
-        if isinstance(self.key_fields, str):
-            return self[self.key_fields]
-        elif isinstance(self.key_fields, (list, tuple)):
+        if isinstance(self.key_fields(), str):
+            return self[self.key_fields()]
+        elif isinstance(self.key_fields(), (list, tuple)):
             key_list = list()
-            for field_name in self.key_fields:
+            for field_name in self.key_fields():
                 key_list.append(self[field_name])
             return key_list
         else:
-            raise TypeError('property {0}.key_fields of type {1} is not of supported types: list, tuple'.
-                            format(self.__class__.__name__, type(self.key_fields)))
+            raise TypeError('classmethod {0}.key_fields of type {1} is not of supported types: list, tuple'.
+                            format(self.__class__.__name__, type(self.key_fields())))
 
     @key.setter
     def key(self, value):
-        if isinstance(self.key_fields, str):
-            self[self.key_fields] = value
-        elif isinstance(self.key_fields, (list, tuple)):
-            for i, field_name in enumerate(self.key_fields):
+        if isinstance(self.key_fields(), str):
+            self[self.key_fields()] = value
+        elif isinstance(self.key_fields(), (list, tuple)):
+            for i, field_name in enumerate(self.key_fields()):
                 self[field_name] = value[i]
         else:
-            raise TypeError('property {0}.key_fields of type {1} is not of supported types: list, tuple'.
-                            format(self.__class__.__name__, type(self.key_fields)))
+            raise TypeError('classmethod {0}.key_fields of type {1} is not of supported types: list, tuple'.
+                            format(self.__class__.__name__, type(self.key_fields())))
 
-    @property
-    def key_fields(self):
-        raise NotImplementedError(f'property {self.__class__.__name__}.key_fields is not implemented')
+    @classmethod
+    def key_fields(cls):
+        raise NotImplementedError(f'classmethod {cls.__name__}.key_fields is not implemented')
 
     @property
     def document(self):

@@ -14,7 +14,7 @@ class TestDocument(unittest.TestCase):
             gama = fields.IntegerField(null=False)
             other = fields.StringField(null=False)
 
-            @property
+            @classmethod
             def key_fields(cls):
                 return Example.alpha.name, Example.beta.name, Example.gama.name
 
@@ -25,13 +25,13 @@ class TestDocument(unittest.TestCase):
         model.other = 'something else'
 
         self.assertListEqual(model.key, [45, 'string', 987654321])
-        self.assertSequenceEqual(model.key_fields, ['alpha', 'beta', 'gama'])
-        self.assertSequenceEqual(Example().key_fields, ['alpha', 'beta', 'gama'])
+        self.assertSequenceEqual(model.key_fields(), ['alpha', 'beta', 'gama'])
+        self.assertSequenceEqual(Example.key_fields(), ['alpha', 'beta', 'gama'])
 
         model.key = [99, 'carabra', 12345]
 
         self.assertListEqual(model.key, [99, 'carabra', 12345])
-        self.assertSequenceEqual(model.key_fields, ['alpha', 'beta', 'gama'])
+        self.assertSequenceEqual(model.key_fields(), ['alpha', 'beta', 'gama'])
 
         self.assertEqual(model.alpha, 99)
         self.assertEqual(model.beta, 'carabra')
@@ -45,7 +45,7 @@ class TestDocument(unittest.TestCase):
             gama = fields.IntegerField(null=False)
             other = fields.StringField(null=False)
 
-            @property
+            @classmethod
             def key_fields(self):
                 return Example.alpha.name
 
@@ -56,13 +56,13 @@ class TestDocument(unittest.TestCase):
         model.other = 'something else'
 
         self.assertEqual(model.key, 45)
-        self.assertEqual(model.key_fields, 'alpha')
-        self.assertEqual(Example().key_fields, 'alpha')
+        self.assertEqual(model.key_fields(), 'alpha')
+        self.assertEqual(Example.key_fields(), 'alpha')
 
         model.key = 12345
 
         self.assertEqual(model.key, 12345)
-        self.assertEqual(model.key_fields, 'alpha')
+        self.assertEqual(model.key_fields(), 'alpha')
 
         self.assertEqual(model.alpha, 12345)
         self.assertEqual(model.beta, 'string')
