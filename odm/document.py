@@ -125,7 +125,7 @@ class BaseDocument(object):
             key_list = list()
             for field_name in self.key_fields():
                 key_list.append(self[field_name])
-            return key_list
+            return tuple(key_list)
         else:
             raise TypeError('classmethod {0}.key_fields of type {1} is not of supported types: list, tuple'.
                             format(self.__class__.__name__, type(self.key_fields())))
